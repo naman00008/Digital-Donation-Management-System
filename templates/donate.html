@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - RayOfTrust</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Industry Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .checkout-container { max-width: 950px; margin: 40px auto; }
+        
+        /* Stunning Razorpay-style Gateway Layout */
+        #payment-gateway { 
+            display: none; 
+            background: white; 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            border: 1px solid #e9ecef;
+        }
+        
+        .payment-sidebar { background: #f8f9fa; border-right: 1px solid #e9ecef; padding: 0; display: flex; flex-direction: column; }
+        
+        .payment-sidebar .nav-link { 
+            color: #495057; border-radius: 0; padding: 18px 24px; border-left: 4px solid transparent; 
+            font-weight: 500; font-size: 0.95rem; text-align: left; transition: all 0.2s;
+        }
+        .payment-sidebar .nav-link:hover { background: #e9ecef; }
+        .payment-sidebar .nav-link.active { 
+            background: white; color: #0d6efd; border-left-color: #0d6efd; font-weight: 700; box-shadow: -5px 0 10px rgba(0,0,0,0.02);
+        }
+        .payment-sidebar .nav-link i { width: 28px; text-align: center; margin-right: 12px; font-size: 1.1rem; }
+        
+        .payment-content { padding: 50px 60px; position: relative; min-height: 500px; }
+        
+        .form-control-custom { 
+            background: #fff; border: 1.5px solid #ced4da; padding: 14px 18px; border-radius: 10px; font-size: 1rem; transition: 0.3s;
+        }
+        .form-control-custom:focus { border-color: #0d6efd; box-shadow: 0 0 0 4px rgba(13,110,253,0.1); }
+        
+        /* Processing Overlay */
+        #processing-overlay {
+            display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95); z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 0 16px 16px 0;
+        }
+        .bank-loader { 
+            width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #0d6efd; 
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-hands-holding-child me-2"></i>RayOfTrust</a>
+            <div class="d-flex">
+                <a href="/donor" class="btn btn-light btn-sm fw-bold me-2">Donor Portal</a>
+                <a href="/admin" class="btn btn-outline-light btn-sm">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="checkout-container px-3">
+        <!-- Step 1: Donation Details (Redesigned) -->
+        <div class="card shadow border-0 rounded-4 mb-4" id="donation-details">
+            <div class="card-header bg-white text-center py-5 border-0">
+                <h2 class="fw-bold text-dark mb-2">Complete Your Donation</h2>
+                <p class="text-muted fs-5">Your secure contribution is 80G tax-exempt.</p>
+            </div>
+            <div class="card-body p-4 p-md-5 pt-0">
+                <form id="donationForm" action="/public_add_donation" method="POST">
+                    <input type="hidden" name="payment_method" id="payment_method" value="Online">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Full Name</label>
+                            <input type="text" class="form-control form-control-custom" name="donor_name" placeholder="John Doe" required>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Email Address</label>
+                            <input type="email" class="form-control form-control-custom" name="donor_email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Donation Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 fw-bold fs-5 px-4 text-muted">₹</span>
+                                <input type="number" class="form-control form-control-custom border-start-0 ps-0 fs-5 fw-bold" name="amount" placeholder="5000" min="10" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-5">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Select Campaign</label>
+                            <select class="form-select form-control-custom" name="purpose" required>
+                                <option value="General Fund">General Fund (Greatest Need)</option>
+                                <option value="Education Drive">Education Drive</option>
+                                <option value="Winter Clothes">Winter Clothes Distribution</option>
+                                <option value="Medical Relief">Medical Relief Fund</option>
+                                <option value="Women Empowerment">Women Empowerment Program</option>
+                                <option value="Hunger Relief">Hunger Relief & Food Drives</option>
+                                <option value="Clean Water">Clean Water Initiative</option>
+                                <option value="Orphanage Support">Orphanage Support</option>
+                                <option value="Skill Development">Skill Development Program</option>
+                                <option value="Disaster Relief">Disaster Relief Fund</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-5 shadow" onclick="showPayment()">Proceed to Checkout <i class="fa-solid fa-arrow-right ms-2"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Step 2: Industry-Standard Payment Gateway -->
+        <div id="payment-gateway" class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-4 payment-sidebar">
+                <div class="p-4 p-md-5 border-bottom bg-white">
+                    <p class="text-muted mb-1 small fw-bold text-uppercase">Amount to Pay</p>
+                    <h2 class="fw-bold text-dark mb-0">₹<span id="display-amount">0</span></h2>
+                </div>
+                <div class="nav flex-column nav-pills flex-grow-1" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-upi" type="button"><i class="fa-solid fa-qrcode text-success"></i> UPI / QR Code</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-card" type="button"><i class="fa-regular fa-credit-card text-primary"></i> Credit / Debit Card</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-netbanking" type="button"><i class="fa-solid fa-building-columns text-warning"></i> Net Banking</button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-neft" type="button"><i class="fa-solid fa-money-bill-transfer text-secondary"></i> NEFT / RTGS</button>
+                </div>
+                <div class="p-4 text-center mt-auto border-top bg-light">
+                    <small class="text-success fw-bold"><i class="fa-solid fa-lock"></i> 256-bit SSL Bank Secured</small>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-md-8 payment-content bg-white">
+                
+                <!-- Processing Overlay -->
+                <div id="processing-overlay">
+                    <div class="bank-loader"></div>
+                    <h4 class="fw-bold text-dark">Processing Payment...</h4>
+                    <p class="text-muted">Please do not press back or refresh your browser.</p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h4 class="fw-bold text-dark mb-0">Select Payment Method</h4>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="cancelPayment()">Cancel</button>
+                </div>
+
+                <div class="tab-content">
+                    
+                    <!-- UPI Tab -->
+                    <div class="tab-pane fade show active" id="tab-upi">
+                        <div class="text-center mb-4">
+                            <p class="text-muted mb-4">Scan the QR code with any UPI app</p>
+                            <div class="d-inline-block p-2 bg-white rounded-4 shadow-sm border border-2 border-primary mb-3">
+                                <!-- Dynamic Working UPI QR Code -->
+                                <img id="dynamic-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=namanmtj2005-2@okicici&pn=Naman%20Vyas&cu=INR" alt="Live QR" class="rounded" style="width: 180px; height: 180px;">
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="mt-2 mb-3">
+                                <input type="text" class="form-control text-center bg-light" value="namanmtj2005-2@okicici" readonly>
+                            </div>
+                            <button type="button" id="upi-btn" class="btn btn-primary btn-lg w-100 py-3 fw-bold mt-4 shadow" onclick="processPayment('upi')">Confirm Scan Completed</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Tab -->
+                    <div class="tab-pane fade" id="tab-card">
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Card Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 px-3"><i class="fa-brands fa-cc-visa text-secondary fs-4"></i></span>
+                                <input type="text" class="form-control form-control-custom border-start-0 ps-0" placeholder="0000 0000 0000 0000">
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Valid Thru</label>
+                                <input type="text" class="form-control form-control-custom" placeholder="MM/YY">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted text-uppercase">CVV</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-custom border-end-0" placeholder="•••">
+                                    <span class="input-group-text bg-light border-start-0 text-muted"><i class="fa-solid fa-credit-card"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Name on Card</label>
+                            <input type="text" class="form-control form-control-custom" placeholder="As printed on card">
+                            </div>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" onclick="processPayment('card')">Pay Securely</button>
+                    </div>
+                    
+                    <!-- Net Banking Tab -->
+                    <div class="tab-pane fade" id="tab-netbanking">
+                        <p class="text-muted mb-4">Select your bank from the dropdown below</p>
+                        <select class="form-select form-control-custom mb-4" style="cursor: pointer;">
+                            <option selected disabled>Popular Banks...</option>
+                            <option value="sbi">State Bank of India (SBI)</option>
+                            <option value="hdfc">HDFC Bank</option>
+                            <option value="icici">ICICI Bank</option>
+                            <option value="axis">Axis Bank</option>
+                            <option value="pnb">Punjab National Bank (PNB)</option>
+                            <option value="bob">Bank of Baroda</option>
+                        </select>
+                        <div class="p-4 bg-light rounded-3 text-center mb-4 border">
+                            <i class="fa-solid fa-shield-halved text-success fs-1 mb-3"></i>
+                            <p class="small text-muted mb-0">You will be securely redirected to your bank's website to complete the payment authorization.</p>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" onclick="processPayment('netbanking')">Proceed to Bank</button>
+                    </div>
+
+                    <!-- NEFT Tab -->
+                    <div class="tab-pane fade" id="tab-neft">
+                        <div class="alert alert-primary bg-light border-primary border-start border-4 text-start mb-4">
+                            <strong>High-Value Donation:</strong> Use NEFT/RTGS to bypass daily UPI limits. Transfer directly to the NGO's verified account.
+                        </div>
+                        <div class="bg-light border rounded-3 p-4 text-start mb-4">
+                            <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Beneficiary Name</div>
+                                <div class="col-sm-7 fw-bold text-dark">A Ray Of Hope Foundation</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Account Number</div>
+                                <div class="col-sm-7 fw-bold text-dark fs-5 tracking-widest">999888777666555</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">IFSC Code</div>
+                                <div class="col-sm-7 fw-bold text-dark">HDFC0001234</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">UTR / Reference Number</label>
+                            <input type="text" class="form-control form-control-custom" placeholder="Enter bank reference after transfer">
+                            </div>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" onclick="processPayment('neft')">Confirm Transfer</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: OTP Verification (Hidden initially) -->
+        <div class="card shadow-lg border-0 rounded-4 mb-4" id="otp-verification" style="display: none; max-width: 450px; margin: 0 auto;">
+            <div class="card-header bg-white text-center py-4 border-0 border-bottom">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/MasterCard_SecureCode_logo.svg/1200px-MasterCard_SecureCode_logo.svg.png" height="30" alt="Secure" class="mb-2">
+                <h5 class="fw-bold text-dark mb-0">Bank Authentication</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <i class="fa-solid fa-mobile-screen-button text-primary fs-1 mb-3"></i>
+                <p class="text-muted mb-4 small">A One Time Password (OTP) has been sent to your registered mobile number ending in <strong>XXXX89</strong></p>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary small text-uppercase">Enter OTP</label>
+                    <input type="text" class="form-control form-control-lg text-center fw-bold" placeholder="• • • • • •" maxlength="6" style="letter-spacing: 12px; font-size: 1.5rem;">
+                </div>
+                <button class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow mb-3" onclick="verifyOTP()">Verify & Confirm Payment</button>
+                <p class="text-muted small mb-0">Didn't receive it? <a href="#" class="text-decoration-none">Resend OTP</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showPayment() {
+            const form = document.getElementById('donationForm');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // Switch UI
+            document.getElementById('donation-details').style.display = 'none';
+            document.getElementById('payment-gateway').style.display = 'flex';
+            
+            // Set Amount
+            const amount = document.querySelector('input[name="amount"]').value;
+            document.getElementById('display-amount').innerText = amount;
+
+            // Generate Dynamic QR Code based on entered amount
+            const dynamicQrImg = document.getElementById('dynamic-qr');
+            if (dynamicQrImg) {
+                const upiData = `upi://pay?pa=namanmtj2005-2@okicici&pn=Naman%20Vyas&am=${amount}&cu=INR`;
+                dynamicQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiData)}`;
+            }
+        }
+
+        function processPayment(method) {
+            // Set the exact payment method for the database
+            let methodStr = 'Online';
+            if (method === 'upi') methodStr = 'UPI QR Code';
+            if (method === 'card') methodStr = 'Credit/Debit Card';
+            if (method === 'netbanking') methodStr = 'Net Banking';
+            if (method === 'neft') methodStr = 'NEFT/RTGS';
+            
+            document.getElementById('payment_method').value = methodStr;
+            
+            document.getElementById('processing-overlay').style.display = 'flex';
+            
+            if (method === 'upi' || method === 'neft') {
+                document.querySelector('#processing-overlay h4').innerText = 'Verifying Transaction...';
+                setTimeout(() => {
+                    document.getElementById('donationForm').submit();
+                }, 2000); 
+            } else {
+                document.querySelector('#processing-overlay h4').innerText = 'Connecting to Bank...';
+                setTimeout(() => {
+                    document.getElementById('processing-overlay').style.display = 'none';
+                    document.getElementById('payment-gateway').style.display = 'none';
+                    document.getElementById('otp-verification').style.display = 'block';
+                }, 1500); 
+            }
+        }
+        
+        function verifyOTP() {
+            // Show processing on button
+            const btn = document.querySelector('#otp-verification button');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Processing...';
+            btn.disabled = true;
+            
+            // Wait 1.5 seconds then submit
+            setTimeout(() => {
+                document.getElementById('donationForm').submit();
+            }, 1500);
+        }
+
+        function cancelPayment() {
+            document.getElementById('payment-gateway').style.display = 'none';
+            document.getElementById('donation-details').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

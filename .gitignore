@@ -1,0 +1,15 @@
+# Environments
+venv/
+env/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS
+.DS_Store
+
+# Databases
+# We will include rayoftrust.db since it has the seed data for the demo!
