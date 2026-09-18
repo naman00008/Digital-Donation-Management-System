@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donor Portal - RayOfTrust</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-light">
     <!-- Navbar -->
@@ -28,6 +29,48 @@
                         <h4>{{ donor.name }}</h4>
                         <p class="text-muted">{{ donor.email }}</p>
                         <p class="mt-4 mb-0 text-success fw-bold">Thank you for your continuous support to A Ray Of Hope.</p>
+                        
+                        <hr class="my-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-trophy text-warning me-2"></i> Your Impact Badges</h5>
+                        <p class="small text-muted mb-4">Total Donated: <strong>₹{{ "{:,.0f}".format(total_donated) }}</strong></p>
+                        
+                        <div class="d-flex flex-wrap justify-content-center gap-3">
+                            <!-- Bronze Badge -->
+                            <div class="text-center" style="opacity: {{ '1' if total_donated >= 1000 else '0.2' }}; filter: {{ 'none' if total_donated >= 1000 else 'grayscale(100%)' }}; transition: all 0.3s;">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 60px; height: 60px; border: 3px solid #cd7f32;">
+                                    <i class="fa-solid fa-heart fs-3" style="color: #cd7f32;"></i>
+                                </div>
+                                <div class="small fw-bold" style="color: #cd7f32;">Bronze</div>
+                                <div style="font-size: 0.7rem;" class="text-muted">₹1K+</div>
+                            </div>
+                            
+                            <!-- Silver Badge -->
+                            <div class="text-center" style="opacity: {{ '1' if total_donated >= 5000 else '0.2' }}; filter: {{ 'none' if total_donated >= 5000 else 'grayscale(100%)' }}; transition: all 0.3s;">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 60px; height: 60px; border: 3px solid #c0c0c0;">
+                                    <i class="fa-solid fa-shield-halved fs-3" style="color: #c0c0c0;"></i>
+                                </div>
+                                <div class="small fw-bold" style="color: #a0a0a0;">Silver</div>
+                                <div style="font-size: 0.7rem;" class="text-muted">₹5K+</div>
+                            </div>
+                            
+                            <!-- Gold Badge -->
+                            <div class="text-center" style="opacity: {{ '1' if total_donated >= 10000 else '0.2' }}; filter: {{ 'none' if total_donated >= 10000 else 'grayscale(100%)' }}; transition: all 0.3s;">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 60px; height: 60px; border: 3px solid #ffd700;">
+                                    <i class="fa-solid fa-crown fs-3" style="color: #ffd700;"></i>
+                                </div>
+                                <div class="small fw-bold" style="color: #d4af37;">Gold</div>
+                                <div style="font-size: 0.7rem;" class="text-muted">₹10K+</div>
+                            </div>
+                            
+                            <!-- Platinum Badge -->
+                            <div class="text-center" style="opacity: {{ '1' if total_donated >= 25000 else '0.2' }}; filter: {{ 'none' if total_donated >= 25000 else 'grayscale(100%)' }}; transition: all 0.3s;">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 60px; height: 60px; border: 3px solid #e5e4e2;">
+                                    <i class="fa-solid fa-gem fs-3" style="color: #4b0082;"></i>
+                                </div>
+                                <div class="small fw-bold" style="color: #4b0082;">Platinum</div>
+                                <div style="font-size: 0.7rem;" class="text-muted">₹25K+</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

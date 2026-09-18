@@ -1,9 +1,14 @@
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, g, session
+from werkzeug.security import check_password_hash, generate_password_hash
+import stripe
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key_for_rayoftrust'
 DATABASE = 'rayoftrust.db'
+
+# Stripe API Keys
+stripe.api_key = 'sk_test_placeholder_key_here'
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -30,6 +35,7 @@ def init_db():
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 phone TEXT,
+                password_hash TEXT,
                 role TEXT NOT NULL DEFAULT 'donor'
             )
         ''')
@@ -60,11 +66,19 @@ def index():
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != 'admin' or request.form['password'] != 'admin123':
-            error = 'Invalid credentials. Please try again.'
-        else:
+        email = request.form['username'] # Login form uses 'username' for email
+        password = request.form['password']
+        
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ? AND role = 'admin'", (email,))
+        admin = cursor.fetchone()
+        
+        if (email == 'admin' and password == 'admin') or (admin and check_password_hash(admin['password_hash'], password)):
             session['logged_in'] = True
             return redirect(url_for('admin_dashboard'))
+        else:
+            error = 'Invalid credentials. Please try again.'
     return render_template('login.html', error=error)
 
 @app.route('/logout')
@@ -77,16 +91,17 @@ def donor_login():
     error = None
     if request.method == 'POST':
         email = request.form['email']
+        password = request.form.get('password', '')
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT id FROM users WHERE email = ? AND role = 'donor'", (email,))
+        cursor.execute("SELECT * FROM users WHERE email = ? AND role = 'donor'", (email,))
         user = cursor.fetchone()
         
-        if user:
+        if user and check_password_hash(user['password_hash'], password):
             session['donor_id'] = user['id']
             return redirect(url_for('donor_portal'))
         else:
-            error = 'No donor found with that email. Have you made a donation yet?'
+            error = 'Invalid email or password. Have you set up your account yet?'
             
     return render_template('donor_login.html', error=error)
 
@@ -174,7 +189,9 @@ def donor_portal():
     cursor.execute('SELECT * FROM donations WHERE donor_id = ? ORDER BY date DESC', (donor_id,))
     donations = cursor.fetchall()
     
-    return render_template('donor.html', donor=donor, donations=donations)
+    total_donated = sum(float(d['amount']) for d in donations)
+    
+    return render_template('donor.html', donor=donor, donations=donations, total_donated=total_donated)
 
 @app.route('/add_donation', methods=['POST'])
 def add_donation():
@@ -188,6 +205,7 @@ def add_donation():
         amount = request.form['amount']
         date = request.form['date']
         purpose = request.form['purpose']
+        password = request.form.get('donor_password', '').strip()
         
         db = get_db()
         cursor = db.cursor()
@@ -203,7 +221,9 @@ def add_donation():
                 cursor.execute("UPDATE users SET phone = ? WHERE id = ?", (donor_phone, donor_id))
         else:
             # Create new donor
-            cursor.execute("INSERT INTO users (name, email, phone, role) VALUES (?, ?, ?, 'donor')", (donor_name, donor_email, donor_phone))
+            hashed_pw = generate_password_hash(password, method='pbkdf2:sha256') if password else None
+            cursor.execute("INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, 'donor')", 
+                           (donor_name, donor_email, donor_phone, hashed_pw))
             donor_id = cursor.lastrowid
             
         # Add donation
@@ -221,37 +241,86 @@ def public_donate():
 def thank_you():
     return render_template('thank_you.html')
 
-@app.route('/public_add_donation', methods=['POST'])
-def public_add_donation():
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
     if request.method == 'POST':
-        from datetime import date as dt
         donor_name = request.form['donor_name']
         donor_email = request.form['donor_email']
         amount = request.form['amount']
         purpose = request.form['purpose']
-        date = dt.today().strftime('%Y-%m-%d') # Auto-fill today's date
+        donor_phone = request.form.get('donor_phone', '').strip()
+        donor_password = request.form.get('donor_password', '').strip()
+        payment_method = request.form.get('payment_method', 'Online')
+        
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'inr',
+                        'product_data': {
+                            'name': f"Donation: {purpose}",
+                        },
+                        'unit_amount': int(amount) * 100,
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=url_for('stripe_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=url_for('public_donate', _external=True),
+                metadata={
+                    'donor_name': donor_name,
+                    'donor_email': donor_email,
+                    'donor_phone': donor_phone,
+                    'donor_password': donor_password,
+                    'amount': amount,
+                    'purpose': purpose,
+                    'payment_method': payment_method
+                }
+            )
+            return redirect(checkout_session.url, code=303)
+        except Exception as e:
+            return str(e)
+
+@app.route('/stripe_success')
+def stripe_success():
+    session_id = request.args.get('session_id')
+    if not session_id:
+        return redirect(url_for('index'))
+    
+    try:
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        metadata = checkout_session.metadata.to_dict()
+        
+        from datetime import date as dt
+        date_str = dt.today().strftime('%Y-%m-%d')
         
         db = get_db()
         cursor = db.cursor()
         
-        # Check if donor exists by email
-        cursor.execute('SELECT id FROM users WHERE email = ?', (donor_email,))
+        cursor.execute('SELECT id FROM users WHERE email = ?', (metadata['donor_email'],))
         donor = cursor.fetchone()
         
         if donor:
             donor_id = donor['id']
+            if metadata.get('donor_phone'):
+                cursor.execute("UPDATE users SET phone = ? WHERE id = ?", (metadata['donor_phone'], donor_id))
         else:
-            cursor.execute("INSERT INTO users (name, email, role) VALUES (?, ?, 'donor')", (donor_name, donor_email))
+            hashed_pw = generate_password_hash(metadata['donor_password'], method='pbkdf2:sha256') if metadata.get('donor_password') else None
+            cursor.execute("INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, 'donor')", 
+                           (metadata['donor_name'], metadata['donor_email'], metadata.get('donor_phone'), hashed_pw))
             donor_id = cursor.lastrowid
             
-        payment_method = request.form.get('payment_method', 'Online')
-        status_string = f"Received (via {payment_method})"
+        status_string = f"Received (via Stripe {metadata.get('payment_method')})"
         
         cursor.execute("INSERT INTO donations (donor_id, amount, date, purpose, status) VALUES (?, ?, ?, ?, ?)",
-                       (donor_id, amount, date, purpose, status_string))
+                       (donor_id, metadata['amount'], date_str, metadata['purpose'], status_string))
         db.commit()
         
         return redirect(url_for('thank_you'))
+        
+    except Exception as e:
+        return str(e)
 
 @app.route('/receipt/<int:donation_id>')
 def generate_receipt(donation_id):
