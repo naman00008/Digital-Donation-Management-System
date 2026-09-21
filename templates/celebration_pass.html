@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebration Pass #{{ celebration.id }} - RayOfTrust</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #334155;
+        }
+        .pass-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .pass-header {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 35px 40px;
+            position: relative;
+        }
+        .pass-body {
+            padding: 40px;
+        }
+        .pass-stamp {
+            border: 3px dashed #0d6efd;
+            color: #0d6efd;
+            padding: 10px 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            transform: rotate(-5deg);
+            border-radius: 8px;
+        }
+        .info-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .pass-container {
+                box-shadow: none;
+                border: 2px solid #cbd5e1;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Action Bar (Hidden on Print) -->
+    <div class="container mt-4 no-print text-center">
+        <div class="d-flex justify-content-between align-items-center mb-3 max-w-800 mx-auto" style="max-width: 800px;">
+            <a href="/" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Home
+            </a>
+            <div>
+                <a href="/donor" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fa-solid fa-user me-1"></i> Donor Portal
+                </a>
+                <button onclick="window.print()" class="btn btn-primary btn-sm shadow-sm" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;">
+                    <i class="fa-solid fa-print me-1"></i> Print / Save Pass
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Digital Pass Card -->
+    <div class="pass-container">
+        <!-- Header -->
+        <div class="pass-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="fw-bold mb-1"><i class="fa-solid fa-hands-holding-heart me-2"></i> RayOfTrust NGO</h3>
+                    <p class="mb-0 opacity-90 small">Digital Donation & Child Welfare Foundation</p>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-bold fs-6">
+                        🎉 CELEBRATION PASS
+                    </span>
+                    <div class="small mt-1 opacity-90">Pass ID: #ROT-JOY-{{ "%04d"|format(celebration.id) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="pass-body">
+            <!-- Confirmed Banner -->
+            <div class="alert alert-success d-flex align-items-center mb-4 p-3 rounded-3" role="alert">
+                <i class="fa-solid fa-circle-check fs-3 me-3 text-success"></i>
+                <div>
+                    <strong class="d-block">Booking Status: {{ celebration.status }}</strong>
+                    <small>Your celebration with our shelter kids has been officially scheduled. Our team is preparing to welcome you and create wonderful memories!</small>
+                </div>
+            </div>
+
+            <!-- Occasion & Celebrant Spotlight -->
+            <div class="p-4 rounded-4 mb-4" style="background: #f0f7ff; border-left: 6px solid #0d6efd;">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <span class="badge bg-primary mb-2">{{ celebration.occasion_type }}</span>
+                        <h2 class="fw-bold text-dark mb-1">{{ celebration.celebrant_name }}</h2>
+                        {% if celebration.special_message %}
+                        <p class="mb-0 text-muted fst-italic">"{{ celebration.special_message }}"</p>
+                        {% else %}
+                        <p class="mb-0 text-muted">Celebrating happiness, joy, and smiles with all shelter children.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <div class="pass-stamp">
+                            <i class="fa-solid fa-stamp me-1"></i> VERIFIED
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if celebration.kid_name %}
+            <!-- Sponsored Shelter Child Spotlight -->
+            <div class="p-3 mb-4 rounded-4 border border-warning" style="background: linear-gradient(135deg, #fff9db, #fff3bf); box-shadow: 0 4px 15px rgba(245, 159, 0, 0.1);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm flex-shrink-0" style="width: 52px; height: 52px; font-size: 1.3rem; background: {{ celebration.kid_avatar_color or '#0d6efd' }};">
+                        {{ celebration.kid_name[0] }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <span class="badge bg-warning text-dark fw-bold mb-1"><i class="fa-solid fa-star me-1"></i> Official Shelter Birthday Sponsor</span>
+                        <h5 class="fw-bold text-dark mb-1">Honoring: {{ celebration.kid_name }} (Turning Age {{ celebration.kid_age }})</h5>
+                        <p class="mb-0 text-muted small">
+                            <i class="fa-solid fa-sparkles text-warning me-1"></i><strong>Dream:</strong> "{{ celebration.kid_dream }}" &bull; 
+                            <i class="fa-solid fa-heart text-danger me-1"></i><strong>Favorite Treat:</strong> {{ celebration.kid_treat }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Event Information Grid -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="info-label"><i class="fa-regular fa-calendar-check me-1 text-danger"></i> Date</div>
+                    <div class="info-value">{{ celebration.celebration_date }}</div>
+                </div>
+                <div class="col-md-6 col-lg-5">
+                    <div class="info-label"><i class="fa-regular fa-clock me-1 text-danger"></i> Time Slot</div>
+                    <div class="info-value" style="font-size: 1.05rem;">{{ celebration.time_slot }}</div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="info-label"><i class="fa-solid fa-handshake-angle me-1 text-danger"></i> Attendance Mode</div>
+                    <div class="info-value">
+                        <span class="badge bg-primary text-white">{{ celebration.attendance_mode }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Package & Sponsoring Details -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-7">
+                    <div class="info-label"><i class="fa-solid fa-hand-holding-heart me-1 text-danger"></i> Sponsorship Type</div>
+                    <div class="info-value text-danger">{{ celebration.package_type or 'Celebration Sponsorship' }}</div>
+                    <small class="text-muted d-block mt-1">Directly sponsors custom celebration cake, hot festive meals, and joyful activities for all shelter children.</small>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <div class="info-label">Sponsorship Contribution</div>
+                    <div class="fs-3 fw-bold text-success">₹{{ "{:,.0f}".format(celebration.amount) }}</div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Tax Exempt (80G)</span>
+                </div>
+            </div>
+
+            <!-- Sponsor / Donor Details -->
+            <div class="bg-light p-3 rounded-3 mb-4">
+                <div class="row text-muted small">
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <strong>Booked By:</strong> {{ celebration.donor_name }}
+                    </div>
+                    <div class="col-md-4 mb-2 mb-md-0">
+                        <strong>Email:</strong> {{ celebration.donor_email }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Contact:</strong> {{ celebration.donor_phone if celebration.donor_phone else 'N/A' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Venue & Guidelines -->
+            <div class="border rounded-3 p-3 bg-white mb-4">
+                <h6 class="fw-bold mb-2"><i class="fa-solid fa-location-dot text-danger me-2"></i> Shelter Center Venue & Instructions</h6>
+                <div class="row small text-muted">
+                    <div class="col-md-7">
+                        <strong>RayOfTrust Children Hope Center</strong><br>
+                        B4, Sheikh, Safa Complex, 2, Waghmare Rd, Shankar Kalat Nagar, Wakad, Pune, Pimpri-Chinchwad, Maharashtra 411057<br>
+                        <strong>Helpdesk Coordinator:</strong> 097302 55167
+                    </div>
+                    <div class="col-md-5 mt-2 mt-md-0">
+                        <ul class="mb-0 ps-3">
+                            <li>Please arrive 10-15 minutes prior to the time slot.</li>
+                            <li>Feel free to bring balloons, gifts, or board games.</li>
+                            <li>Photography & videography with children is fully welcomed!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Seal & Signature -->
+            <div class="d-flex justify-content-between align-items-end pt-3 border-top">
+                <div class="text-muted small">
+                    <div>Issued on: {{ celebration.created_at }}</div>
+                    <div>A Ray Of Hope Charitable Trust • Reg No: MAHA/224/2020 (F-56297)</div>
+                </div>
+                <div class="text-center position-relative" style="min-width: 140px;">
+                    <img src="/static/images/official_stamp.jpg" alt="Official Trust Stamp" style="width: 85px; height: 85px; object-fit: contain; margin-bottom: -15px; position: relative; z-index: 1; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.1));">
+                    <div class="small fw-bold border-top border-dark pt-1 position-relative" style="z-index: 2;">Director of Operations</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

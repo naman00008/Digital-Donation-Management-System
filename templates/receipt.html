@@ -51,7 +51,8 @@
             <div>
                 <h1 class="text-primary fw-bold mb-0">A Ray Of Hope</h1>
                 <p class="text-muted mb-0">Bringing Hope to Those Who Need It</p>
-                <p class="text-muted small">Reg No: NGO/1234/2026 | New Delhi, India</p>
+                <p class="text-muted small mb-0"><strong>Address:</strong> B4, Sheikh, Safa Complex, 2, Waghmare Rd, Shankar Kalat Nagar, Wakad, Pune, Pimpri-Chinchwad, Maharashtra 411057</p>
+                <p class="text-muted small">Reg No: MAHA/224/2020 (F-56297) | Coordinator: 097302 55167</p>
             </div>
             <div class="text-end">
                 <h3 class="text-muted">OFFICIAL RECEIPT</h3>
@@ -96,18 +97,27 @@
             <p class="fst-italic text-muted">Amount in words: <strong class="text-dark">Rupees (calculated automatically) only.</strong></p>
         </div>
 
-        <!-- Footer / Signature -->
-        <div class="row mt-5 pt-5">
-            <div class="col-sm-6">
-                <p class="small text-muted mb-0">Note: All donations to A Ray Of Hope are eligible for 50% tax exemption under Section 80G of the Income Tax Act.</p>
-                <p class="small text-muted">PAN: ABCDE1234F</p>
+        <!-- Footer / Signature & Verification QR Code -->
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-sm-4 text-center text-sm-start mb-3 mb-sm-0">
+                <div class="d-inline-block text-center border p-2 rounded bg-light">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data={{ url_for('generate_receipt', donation_id=data.id, _external=True) }}" 
+                         alt="80G Verification QR Code" 
+                         style="width: 100px; height: 100px;">
+                    <div class="small fw-bold text-muted mt-1" style="font-size: 0.7rem;">Scan to Verify Receipt</div>
+                </div>
             </div>
-            <div class="col-sm-6 text-end position-relative">
-                <div class="d-inline-block text-center" style="width: 200px;">
-                    <img src="{{ url_for('static', filename='images/stamp.jpg') }}" alt="NGO Stamp" style="width: 110px; opacity: 0.85; margin-bottom: 5px;">
-                    <div class="border-top border-dark pt-2">
-                        <p class="mb-0 fw-bold">Authorized Signatory</p>
-                        <p class="text-muted small mb-0">A Ray Of Hope NGO</p>
+            <div class="col-sm-4 mb-3 mb-sm-0">
+                <p class="small text-muted mb-1"><strong>Tax Exemption Note:</strong> Eligible for 50% tax exemption under Section 80G of the Income Tax Act 1961.</p>
+                <p class="small text-muted mb-0"><strong>NGO PAN:</strong> ABCDE1234F</p>
+                <p class="small text-muted mb-0"><strong>80G Reg No:</strong> AROH/80G/2020/MAHA</p>
+            </div>
+            <div class="col-sm-4 text-end position-relative">
+                <div class="d-inline-block text-center position-relative" style="width: 180px;">
+                    <img src="/static/images/official_stamp.jpg" alt="Official Trust Stamp" style="width: 75px; height: 75px; object-fit: contain; margin-bottom: -15px; position: relative; z-index: 1;">
+                    <div class="border-top border-dark pt-1 position-relative" style="z-index: 2;">
+                        <p class="mb-0 fw-bold small">Authorized Signatory</p>
+                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">A Ray Of Hope Charitable Trust</p>
                     </div>
                 </div>
             </div>

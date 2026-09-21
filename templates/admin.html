@@ -7,6 +7,47 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .campaign-admin-card {
+            cursor: pointer;
+            transition: all 0.25s ease-in-out;
+            border: none;
+            background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+        }
+        .campaign-admin-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(255, 152, 0, 0.35) !important;
+        }
+        .pulse-live {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #20c997;
+            box-shadow: 0 0 0 0 rgba(32, 201, 151, 0.7);
+            animation: pulse-green 1.6s infinite;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(32, 201, 151, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(32, 201, 151, 0); }
+        }
+    </style>
 </head>
 <body class="bg-light">
     <!-- Navbar -->
@@ -21,37 +62,70 @@
     </nav>
 
     <div class="container-fluid px-4 mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
         <!-- Stats Row -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-white bg-success h-100">
+        <div class="row g-3 mb-4">
+            <div class="col-md-2 col-lg">
+                <div class="card text-white bg-success h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Total Funds</h5>
-                        <h2>₹{{ total_donations }}</h2>
+                        <h6 class="card-title text-uppercase small opacity-75">Total Funds</h6>
+                        <h3>₹{{ total_donations }}</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-primary h-100">
+            <div class="col-md-2 col-lg">
+                <div class="card text-white bg-primary h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Total Contributions</h5>
-                        <h2>{{ donations|length }}</h2>
+                        <h6 class="card-title text-uppercase small opacity-75">Contributions</h6>
+                        <h3>{{ donations|length }}</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-info h-100">
+            <div class="col-md-2 col-lg">
+                <div class="card text-white bg-info h-100 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Unique Donors</h5>
-                        <h2>{{ total_donors_count }}</h2>
+                        <h6 class="card-title text-uppercase small opacity-75">Unique Donors</h6>
+                        <h3>{{ total_donors_count }}</h3>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-warning h-100">
+            <div class="col-md-3 col-lg">
+                <div class="card text-white bg-danger h-100 shadow-sm" style="background: linear-gradient(135deg, #ff6b6b, #ff8e53) !important;">
                     <div class="card-body">
-                        <h5 class="card-title">Active Campaigns</h5>
-                        <h2>{{ active_campaigns }}</h2>
+                        <h6 class="card-title text-uppercase small opacity-75"><i class="fa-solid fa-cake-candles me-1"></i> Celebrations</h6>
+                        <h3>{{ celebrations|length }} Events</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-lg">
+                <div class="card text-white bg-warning h-100 shadow-sm campaign-admin-card" data-bs-toggle="modal" data-bs-target="#campaignHubModal" title="Click to view details, launch upcoming drives & notify donors">
+                    <div class="card-body position-relative">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title text-uppercase small opacity-85 text-dark fw-bold mb-1">
+                                    <i class="fa-solid fa-bullhorn me-1"></i> Active Campaigns
+                                </h6>
+                                <h3 class="text-dark fw-bold mb-0">{{ active_campaigns }} Live</h3>
+                            </div>
+                            <span class="badge bg-dark text-white rounded-pill px-2 py-1 small shadow-sm">
+                                Manage <i class="fa-solid fa-arrow-up-right-from-square ms-1" style="font-size: 0.7rem;"></i>
+                            </span>
+                        </div>
+                        <div class="mt-2 pt-2 border-top border-dark border-opacity-25 d-flex justify-content-between text-dark small fw-semibold">
+                            <span><i class="fa-solid fa-calendar-plus me-1"></i> {{ upcoming_campaign_list|length }} Upcoming</span>
+                            <span><i class="fa-solid fa-flag-checkered me-1"></i> {{ completed_campaign_list|length }} Concluded</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,6 +248,96 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- New Booking for Celebrations & Events Card -->
+                <div class="card shadow-sm mb-4 border-0" style="border-top: 4px solid #ff6b6b !important;">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
+                        <span class="text-dark"><i class="fa-solid fa-cake-candles text-danger me-2"></i>New Celebration Booking</span>
+                        <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small">Events</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">Schedule and sponsor celebrations, cakes, and hot nutritious meals with the kids at our Wakad shelter.</p>
+                        <form action="/admin_add_celebration" method="POST">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Sponsor / Donor Name</label>
+                                <input type="text" class="form-control form-control-sm" name="donor_name" placeholder="Full Name" required>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Email</label>
+                                    <input type="email" class="form-control form-control-sm" name="donor_email" placeholder="name@email.com" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Phone</label>
+                                    <input type="tel" class="form-control form-control-sm" name="donor_phone" placeholder="+91 " value="+91 ">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Occasion</label>
+                                    <select class="form-select form-select-sm" name="occasion_type" required>
+                                        <option value="Birthday" selected>Birthday</option>
+                                        <option value="Anniversary">Anniversary</option>
+                                        <option value="Memorial Day">Memorial Day</option>
+                                        <option value="Festival Celebration">Festival</option>
+                                        <option value="Achievement Celebration">Achievement</option>
+                                        <option value="General Feast Day">General Feast</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Celebrant Name</label>
+                                    <input type="text" class="form-control form-control-sm" name="celebrant_name" placeholder="Celebrant" required>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Event Date</label>
+                                    <input type="date" class="form-control form-control-sm" name="celebration_date" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Time Slot</label>
+                                    <select class="form-select form-select-sm" name="time_slot" required>
+                                        <option value="Morning Snacks (10:30 AM - 12:00 PM)">Morning (10:30 AM)</option>
+                                        <option value="Lunch Feast & Cake (1:00 PM - 2:30 PM)" selected>Lunch (1:00 PM)</option>
+                                        <option value="Evening Celebration (5:00 PM - 6:30 PM)">Evening (5:00 PM)</option>
+                                        <option value="Dinner & Special Dessert (7:30 PM - 9:00 PM)">Dinner (7:30 PM)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-7">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Package</label>
+                                    <select class="form-select form-select-sm" name="package_type" id="adminPackageSelect" onchange="updateAdminPackageAmount()" required>
+                                        <option value="Celebration Cake & Sweets (₹2,500)" data-amt="2500">Cake & Sweets (₹2,500)</option>
+                                        <option value="Nutritious Feast & Celebration Cake (₹5,000)" data-amt="5000" selected>Feast & Cake (₹5,000)</option>
+                                        <option value="Grand Celebration Party & Gift Hampers (₹10,000)" data-amt="10000">Grand Party (₹10,000)</option>
+                                        <option value="Custom Sponsor Celebration (₹15,000)" data-amt="15000">Custom (₹15,000)</option>
+                                    </select>
+                                </div>
+                                <div class="col-5">
+                                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Amount (₹)</label>
+                                    <input type="number" class="form-control form-control-sm fw-bold text-danger" name="amount" id="adminAmountInput" value="5000" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-1">Attendance Mode</label>
+                                <select class="form-select form-select-sm" name="attendance_mode">
+                                    <option value="In-Person Visit (Wakad, Pune Shelter)" selected>In-Person Visit (Pune Shelter)</option>
+                                    <option value="Virtual Live Video Stream">Virtual Live Video Stream</option>
+                                    <option value="Photo & Video Memories via WhatsApp">WhatsApp Video Memories</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-sm w-100 py-2 fw-bold shadow-sm mb-2">
+                                <i class="fa-solid fa-calendar-plus me-1"></i> Book Celebration & Issue Pass
+                            </button>
+                        </form>
+                        <div class="text-center">
+                            <a href="/celebrate" target="_blank" class="btn btn-outline-danger btn-sm w-100 py-1" style="font-size: 0.8rem;">
+                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open Donor Celebration Portal
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Dashboard Analytics & Table -->
@@ -191,7 +355,7 @@
                     <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
                         <span>Recent Donations Master Log</span>
                     </div>
-                    <div class="card-body p-0 table-responsive" style="max-height: 520px; overflow-y: auto;">
+                    <div class="card-body p-0 table-responsive custom-scroll" style="max-height: 520px; overflow-y: auto;">
                         <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.9rem;">
                             <thead class="table-light text-muted sticky-top" style="z-index: 1;">
                                 <tr>
@@ -256,6 +420,87 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Celebrations & Special Events Management Section -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center py-2 px-3">
+                        <span style="font-size: 0.95rem;">
+                            <i class="fa-solid fa-cake-candles text-danger me-2"></i> Celebrations Master Log
+                        </span>
+                        <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                            {{ celebrations|length }} Bookings
+                        </span>
+                    </div>
+                    <div class="card-body p-0 table-responsive custom-scroll" style="max-height: 480px; overflow-y: auto;">
+                        <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.85rem;">
+                            <thead class="table-light text-muted sticky-top" style="z-index: 1;">
+                                <tr>
+                                    <th class="py-2">Pass ID</th>
+                                    <th class="py-2">Date & Slot</th>
+                                    <th class="py-2">Occasion & Celebrant</th>
+                                    <th class="py-2">Sponsor Info</th>
+                                    <th class="py-2">Package & Mode</th>
+                                    <th class="py-2">Amount</th>
+                                    <th class="py-2">Status</th>
+                                    <th class="py-2">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in celebrations %}
+                                <tr>
+                                    <td class="fw-bold text-danger py-2">#JOY-{{ c.id }}</td>
+                                    <td class="py-2">
+                                        <div class="fw-bold text-dark"><i class="fa-regular fa-calendar-check text-danger me-1"></i> {{ c.celebration_date }}</div>
+                                        <small class="text-muted" style="font-size: 0.75rem;">{{ c.time_slot.split('(')[0] }}</small>
+                                    </td>
+                                    <td class="py-2">
+                                        <span class="badge bg-danger mb-1" style="font-size: 0.7rem;">{{ c.occasion_type }}</span>
+                                        <div class="fw-bold text-dark">{{ c.celebrant_name }}</div>
+                                        {% if c.special_message %}
+                                        <small class="text-muted fst-italic d-block text-truncate" style="max-width: 150px; font-size: 0.73rem;" title="{{ c.special_message }}">"{{ c.special_message }}"</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2">
+                                        <div class="fw-bold">{{ c.donor_name }}</div>
+                                        <div class="text-muted small" style="font-size: 0.75rem;">{{ c.donor_email }}</div>
+                                        {% if c.donor_phone %}
+                                        <div class="text-muted small" style="font-size: 0.72rem;"><i class="fa-solid fa-phone" style="font-size: 0.65rem;"></i> {{ c.donor_phone }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2">
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 140px; font-size: 0.8rem;" title="{{ c.package_type }}">{{ c.package_type.split('(')[0] }}</div>
+                                        <span class="badge bg-info-subtle text-info-emphasis" style="font-size: 0.7rem;">{{ c.attendance_mode }}</span>
+                                    </td>
+                                    <td class="fw-bold text-success py-2">₹{{ "{:,.0f}".format(c.amount) }}</td>
+                                    <td class="py-2">
+                                        <form action="/update_celebration_status/{{ c.id }}" method="POST" class="d-flex align-items-center gap-1">
+                                            <select name="status" class="form-select form-select-sm py-0 px-2" style="width: auto; font-size: 0.78rem;">
+                                                <option value="Confirmed" {% if c.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                                                <option value="Completed" {% if c.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                                <option value="Cancelled" {% if c.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-secondary py-0 px-2" style="font-size: 0.78rem;" title="Save Status">Save</button>
+                                        </form>
+                                    </td>
+                                    <td class="py-2">
+                                        <a href="/celebration/{{ c.id }}" target="_blank" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 0.78rem;" title="View Digital Celebration Pass">
+                                            <i class="fa-solid fa-ticket me-1"></i>Pass
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        <div class="fs-4 mb-1">🎂</div>
+                                        No celebrations booked yet. Donors can book via the <a href="/celebrate" target="_blank" class="fw-bold text-danger">Celebrate Page</a>.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     <!-- Initialize Chart.js -->
@@ -326,7 +571,615 @@
             document.getElementById('ai-insight-results').classList.add('d-none');
             document.getElementById('ai-insight-content').classList.remove('d-none');
         }
+
+        function updateAdminPackageAmount() {
+            const pkg = document.getElementById('adminPackageSelect');
+            if (pkg) {
+                const amt = pkg.options[pkg.selectedIndex].getAttribute('data-amt');
+                if (amt) {
+                    document.getElementById('adminAmountInput').value = amt;
+                }
+            }
+        }
+
+        function openBroadcastModal(campaignId, campaignTitle, startDate, endDate, category) {
+            const form = document.getElementById('broadcastForm');
+            form.action = `/admin/notify_campaign/${campaignId}`;
+            document.getElementById('broadcastCampaignTitle').textContent = campaignTitle;
+            const dateStr = (endDate && endDate !== 'None' && endDate !== 'Ongoing') ? `${startDate} to ${endDate}` : `From ${startDate} (Ongoing)`;
+            document.getElementById('broadcastDatesDisplay').textContent = dateStr;
+            document.getElementById('broadcastMessageInput').value = `📢 INVITATION: Our campaign '${campaignTitle}' is officially active (${dateStr})! You are warmly invited to join and participate if you wish to support our shelter children.`;
+            
+            const hubEl = document.getElementById('campaignHubModal');
+            const hubModal = bootstrap.Modal.getInstance(hubEl);
+            if (hubModal) hubModal.hide();
+            
+            const bModal = new bootstrap.Modal(document.getElementById('broadcastCampaignModal'));
+            bModal.show();
+        }
     </script>
+
+    <!-- ==================== CAMPAIGN COMMAND HUB MODAL ==================== -->
+    <div class="modal fade" id="campaignHubModal" tabindex="-1" aria-labelledby="campaignHubModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Modal Header -->
+                <div class="modal-header bg-dark text-white border-bottom border-secondary px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-2 bg-warning bg-opacity-25 me-3 text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="fa-solid fa-bullhorn fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0" id="campaignHubModalLabel">Campaign Command Hub</h5>
+                            <small class="text-white-50">Manage live campaigns, schedule upcoming drives, review past achievements & notify donors</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-warning btn-sm fw-bold px-3 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+                            <i class="fa-solid fa-plus me-1"></i> New Campaign
+                        </button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body p-4 bg-light">
+                    <!-- Metric Highlights Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Live Active Drives</small>
+                                        <span class="pulse-live"></span>
+                                    </div>
+                                    <h3 class="fw-bold text-success mb-0">{{ active_campaign_list|length }}</h3>
+                                    <small class="text-muted" style="font-size: 0.78rem;">Active community initiatives</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Upcoming Schedule</small>
+                                        <i class="fa-solid fa-calendar-days text-primary"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-primary mb-0">{{ upcoming_campaign_list|length }}</h3>
+                                    <small class="text-muted" style="font-size: 0.78rem;">Future planned drives</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Concluded & Past</small>
+                                        <i class="fa-solid fa-flag-checkered text-secondary"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-dark mb-0">{{ completed_campaign_list|length }}</h3>
+                                    <small class="text-muted" style="font-size: 0.78rem;">Successfully finished drives</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Donor Alerts Sent</small>
+                                        <i class="fa-solid fa-paper-plane text-warning"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-warning mb-0">{{ campaign_notifications|length }}</h3>
+                                    <small class="text-muted" style="font-size: 0.78rem;">Broadcast notifications</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Tabs -->
+                    <ul class="nav nav-pills nav-fill bg-white p-2 rounded-4 shadow-sm mb-4 border" id="campaignTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold py-2 rounded-3" id="live-tab" data-bs-toggle="tab" data-bs-target="#live-pane" type="button" role="tab">
+                                <span class="pulse-live me-2"></span> 🟢 Live Active Drives ({{ active_campaign_list|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-2 rounded-3" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming-pane" type="button" role="tab">
+                                <i class="fa-solid fa-calendar-plus me-1 text-primary"></i> 📅 Upcoming Schedule ({{ upcoming_campaign_list|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-2 rounded-3" id="concluded-tab" data-bs-toggle="tab" data-bs-target="#concluded-pane" type="button" role="tab">
+                                <i class="fa-solid fa-flag-checkered me-1 text-secondary"></i> 🏁 Concluded & Past ({{ completed_campaign_list|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold py-2 rounded-3" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab">
+                                <i class="fa-solid fa-bell me-1 text-warning"></i> 📢 Broadcast History ({{ campaign_notifications|length }})
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Contents -->
+                    <div class="tab-content" id="campaignTabContent">
+                        
+                        <!-- ================= TAB 1: LIVE ACTIVE CAMPAIGNS ================= -->
+                        <div class="tab-pane fade show active" id="live-pane" role="tabpanel">
+                            {% if active_campaign_list %}
+                            <div class="row g-3">
+                                {% for c in active_campaign_list %}
+                                <div class="col-lg-6">
+                                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-3 border-start border-4 border-success">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small me-1">
+                                                    <span class="pulse-live me-1"></span> LIVE NOW
+                                                </span>
+                                                <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small">
+                                                    {{ c.category }}
+                                                </span>
+                                            </div>
+                                            {% if c.days_remaining is not none %}
+                                            <span class="badge bg-light text-muted border small">
+                                                <i class="fa-regular fa-clock me-1 text-danger"></i> {{ c.days_remaining }} days left
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-light text-muted border small">Ongoing</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <h5 class="fw-bold text-dark mb-2">{{ c.title }}</h5>
+                                        <p class="text-muted small mb-3" style="line-height: 1.45;">{{ c.description }}</p>
+
+                                        <!-- Campaign Dates & Schedule Info -->
+                                        <div class="bg-light p-3 rounded-3 mb-3 border">
+                                            <div class="row text-muted small g-2 align-items-center">
+                                                <div class="col-6">
+                                                    <span class="d-block text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">START DATE</span>
+                                                    <strong class="text-dark"><i class="fa-regular fa-calendar-check me-1 text-success"></i> {{ c.start_date }}</strong>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <span class="d-block text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">END DATE</span>
+                                                    <strong class="text-dark">
+                                                        {% if c.end_date %}
+                                                        <i class="fa-regular fa-calendar-xmark me-1 text-danger"></i> {{ c.end_date }}
+                                                        {% else %}
+                                                        <i class="fa-solid fa-infinity me-1 text-primary"></i> Ongoing Drive
+                                                        {% endif %}
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Organizer & Joined Community Members Info -->
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                            <small class="text-muted"><i class="fa-solid fa-user-tie text-primary me-1"></i> Organised by: <strong>{{ c.organizer_name or 'Ray of Trust' }}</strong></small>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold">
+                                                <i class="fa-solid fa-users me-1"></i> {{ c.participant_count }} Joined
+                                            </span>
+                                        </div>
+
+                                        {% if c.participants %}
+                                        <div class="mb-2">
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill w-100 py-1" type="button" data-bs-toggle="collapse" data-bs-target="#admin-participants-{{ c.id }}">
+                                                <i class="fa-solid fa-users-viewfinder me-1"></i> View Joined Members ({{ c.participant_count }})
+                                            </button>
+                                            <div class="collapse mt-2" id="admin-participants-{{ c.id }}">
+                                                <div class="bg-light p-2 rounded-3 border small">
+                                                    {% for p in c.participants %}
+                                                    <div class="border-bottom py-1">
+                                                        <strong class="text-dark">{{ p.name }}</strong> • <span class="text-muted">{{ p.phone }} • {{ p.email }}</span>
+                                                        <div class="text-muted" style="font-size: 0.75rem;">{{ p.role_note }}</div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Action Buttons -->
+                                        <div class="d-flex flex-wrap gap-2 mt-auto pt-2 border-top">
+                                            <button type="button" class="btn btn-warning btn-sm fw-bold px-3 shadow-sm rounded-pill" onclick="openBroadcastModal({{ c.id }}, '{{ c.title|replace('\'', '\\\'') }}', '{{ c.start_date }}', '{{ c.end_date or 'Ongoing' }}', '{{ c.category|replace('\'', '\\\'') }}')">
+                                                <i class="fa-solid fa-bullhorn me-1"></i> Notify Donors to Join
+                                            </button>
+                                            
+                                            <form action="/admin/update_campaign_status/{{ c.id }}" method="POST" class="d-inline" onsubmit="return confirm('Mark this campaign as Completed? It will move to Concluded drives.');">
+                                                <input type="hidden" name="status" value="Completed">
+                                                <button type="submit" class="btn btn-outline-success btn-sm rounded-pill">
+                                                    <i class="fa-solid fa-circle-check me-1"></i> Mark Completed
+                                                </button>
+                                            </form>
+
+                                            <form action="/admin/delete_campaign/{{ c.id }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm('Are you sure you want to delete this campaign?');">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" title="Delete Campaign">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 bg-white rounded-4 border">
+                                <i class="fa-solid fa-bullhorn text-muted fs-1 mb-3 opacity-50"></i>
+                                <h5 class="fw-bold text-dark">No Active Campaigns Right Now</h5>
+                                <p class="text-muted small mb-3">Launch a planned campaign from the Upcoming Schedule tab or create a brand new campaign.</p>
+                                <button type="button" class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+                                    <i class="fa-solid fa-plus me-1"></i> Create New Campaign
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ================= TAB 2: UPCOMING CAMPAIGNS ("WHEN WILL NEW CAMPAIGN COME") ================= -->
+                        <div class="tab-pane fade" id="upcoming-pane" role="tabpanel">
+                            <div class="alert alert-primary border-0 rounded-4 shadow-sm p-3 mb-3 d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-calendar-check fs-3 text-primary"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Scheduled Campaign Pipeline ("When Will New Campaign Come")</strong>
+                                    <small class="text-muted">These are upcoming drives scheduled for launch. Click "Launch Now" to make any campaign active immediately and notify all registered donors.</small>
+                                </div>
+                            </div>
+
+                            {% if upcoming_campaign_list %}
+                            <div class="row g-3">
+                                {% for c in upcoming_campaign_list %}
+                                <div class="col-lg-6">
+                                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white p-3 border-start border-4 border-primary">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 small">
+                                                <i class="fa-solid fa-hourglass-start me-1"></i> Scheduled
+                                            </span>
+                                            <span class="badge bg-primary text-white rounded-pill px-2 py-1 small fw-bold">
+                                                {% if c.days_until_start > 0 %}
+                                                Launches in {{ c.days_until_start }} days
+                                                {% else %}
+                                                Scheduled for Today
+                                                {% endif %}
+                                            </span>
+                                        </div>
+
+                                        <h5 class="fw-bold text-dark mb-1">{{ c.title }}</h5>
+                                        <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small mb-2 align-self-start">{{ c.category }}</span>
+                                        <p class="text-muted small mb-3" style="line-height: 1.45;">{{ c.description }}</p>
+
+                                        <div class="bg-light p-3 rounded-3 mb-3 border">
+                                            <div class="row text-muted small g-2">
+                                                <div class="col-6">
+                                                    <span class="d-block text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">PLANNED LAUNCH DATE</span>
+                                                    <strong class="text-dark"><i class="fa-regular fa-calendar me-1 text-primary"></i> {{ c.start_date }}</strong>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <span class="d-block text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">PLANNED END DATE</span>
+                                                    <strong class="text-dark">
+                                                        {% if c.end_date %}
+                                                        <i class="fa-regular fa-calendar-xmark me-1 text-muted"></i> {{ c.end_date }}
+                                                        {% else %}
+                                                        <span class="text-muted">Open schedule</span>
+                                                        {% endif %}
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Organizer & Joined Info -->
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                            <small class="text-muted"><i class="fa-solid fa-user-tie text-primary me-1"></i> Organised by: <strong>{{ c.organizer_name or 'Ray of Trust' }}</strong></small>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-bold">
+                                                <i class="fa-solid fa-users me-1"></i> {{ c.participant_count }} Pre-Registered
+                                            </span>
+                                        </div>
+
+                                        {% if c.participants %}
+                                        <div class="mb-2">
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill w-100 py-1" type="button" data-bs-toggle="collapse" data-bs-target="#admin-up-participants-{{ c.id }}">
+                                                <i class="fa-solid fa-users-viewfinder me-1"></i> View Pre-Registered Members ({{ c.participant_count }})
+                                            </button>
+                                            <div class="collapse mt-2" id="admin-up-participants-{{ c.id }}">
+                                                <div class="bg-light p-2 rounded-3 border small">
+                                                    {% for p in c.participants %}
+                                                    <div class="border-bottom py-1">
+                                                        <strong class="text-dark">{{ p.name }}</strong> • <span class="text-muted">{{ p.phone }} • {{ p.email }}</span>
+                                                        <div class="text-muted" style="font-size: 0.75rem;">{{ p.role_note }}</div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Launch Now Form -->
+                                        <div class="d-flex flex-wrap gap-2 mt-auto pt-2 border-top">
+                                            <form action="/admin/update_campaign_status/{{ c.id }}" method="POST" class="d-inline" onsubmit="return confirm('Launch this campaign now and notify registered donors to join if they wish?');">
+                                                <input type="hidden" name="status" value="Active">
+                                                <input type="hidden" name="notify" value="yes">
+                                                <button type="submit" class="btn btn-success btn-sm fw-bold px-3 shadow-sm rounded-pill">
+                                                    <i class="fa-solid fa-rocket me-1"></i> Launch & Notify Donors to Join
+                                                </button>
+                                            </form>
+
+                                            <form action="/admin/delete_campaign/{{ c.id }}" method="POST" class="d-inline ms-auto" onsubmit="return confirm('Delete this scheduled campaign?');">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" title="Delete">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 bg-white rounded-4 border">
+                                <i class="fa-solid fa-calendar-xmark text-muted fs-1 mb-3 opacity-50"></i>
+                                <h5 class="fw-bold text-dark">No Upcoming Campaigns Scheduled</h5>
+                                <p class="text-muted small mb-3">Plan your next festive drive, education camp, or winter clothes drive in advance.</p>
+                                <button type="button" class="btn btn-primary fw-bold px-4 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+                                    <i class="fa-solid fa-plus me-1"></i> Schedule Upcoming Campaign
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ================= TAB 3: CONCLUDED & PAST CAMPAIGNS ("HOW MANY JUST DID GONE") ================= -->
+                        <div class="tab-pane fade" id="concluded-pane" role="tabpanel">
+                            <div class="alert alert-secondary border-0 rounded-4 shadow-sm p-3 mb-3 d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-flag-checkered fs-3 text-secondary"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Concluded Drives Archive ("How Many Just Did Gone")</strong>
+                                    <small class="text-muted">A complete historical record of {{ completed_campaign_list|length }} past campaigns that have successfully completed their run and delivered community impact.</small>
+                                </div>
+                            </div>
+
+                            {% if completed_campaign_list %}
+                            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                 <th class="ps-4">Campaign Title & Purpose</th>
+                                                 <th>Category</th>
+                                                 <th>Start Date</th>
+                                                 <th>Concluded Date</th>
+                                                 <th>Status</th>
+                                                 <th class="text-end pe-4">Actions</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody>
+                                             {% for c in completed_campaign_list %}
+                                             <tr>
+                                                 <td class="ps-4">
+                                                     <strong class="text-dark d-block">{{ c.title }}</strong>
+                                                     <small class="text-muted text-truncate d-inline-block" style="max-width: 320px;">{{ c.description }}</small>
+                                                 </td>
+                                                 <td>
+                                                     <span class="badge bg-light text-dark border rounded-pill">{{ c.category }}</span>
+                                                 </td>
+                                                 <td class="text-muted small">
+                                                     <i class="fa-regular fa-calendar me-1 text-primary"></i> {{ c.start_date }}
+                                                 </td>
+                                                 <td class="text-muted small">
+                                                     <i class="fa-regular fa-calendar-check me-1 text-success"></i> {{ c.end_date or c.created_at[:10] }}
+                                                 </td>
+                                                 <td>
+                                                     <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                                         <i class="fa-solid fa-circle-check me-1"></i> Concluded
+                                                     </span>
+                                                 </td>
+                                                <td class="text-end pe-4">
+                                                    <form action="/admin/update_campaign_status/{{ c.id }}" method="POST" class="d-inline" onsubmit="return confirm('Re-activate this campaign back to Live?');">
+                                                        <input type="hidden" name="status" value="Active">
+                                                        <button type="submit" class="btn btn-outline-warning btn-sm rounded-pill" title="Reactivate Campaign">
+                                                            <i class="fa-solid fa-rotate-left me-1"></i> Re-open
+                                                        </button>
+                                                    </form>
+                                                    <form action="/admin/delete_campaign/{{ c.id }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Permanently delete this archived record?');">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill" title="Delete">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 bg-white rounded-4 border">
+                                <i class="fa-solid fa-box-archive text-muted fs-1 mb-3 opacity-50"></i>
+                                <h5 class="fw-bold text-dark">No Completed Campaigns Yet</h5>
+                                <p class="text-muted small mb-0">When an active campaign concludes its goal or end date, mark it completed to archive it here.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ================= TAB 4: BROADCAST HISTORY ================= -->
+                        <div class="tab-pane fade" id="history-pane" role="tabpanel">
+                            <div class="alert alert-warning border-0 rounded-4 shadow-sm p-3 mb-3 d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-bullhorn fs-3 text-warning"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Donor Broadcast History</strong>
+                                    <small class="text-muted">A log of all live campaign alerts dispatched to registered donors across the platform.</small>
+                                </div>
+                            </div>
+
+                            {% if campaign_notifications %}
+                            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4">Dispatched At</th>
+                                                <th>Campaign Title</th>
+                                                <th>Audience Group</th>
+                                                <th>Donors Notified</th>
+                                                <th>Broadcast Message</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for n in campaign_notifications %}
+                                            <tr>
+                                                <td class="ps-4 small text-muted text-nowrap">
+                                                    <i class="fa-regular fa-clock me-1 text-primary"></i> {{ n.sent_at }}
+                                                </td>
+                                                <td>
+                                                    <strong class="text-dark">{{ n.campaign_title }}</strong>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border rounded-pill">{{ n.recipient_type }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                                        <i class="fa-solid fa-users me-1"></i> {{ n.recipients_count }} Donors
+                                                    </span>
+                                                </td>
+                                                <td class="small text-muted" style="max-width: 320px;">
+                                                    {{ n.message }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 bg-white rounded-4 border">
+                                <i class="fa-solid fa-bell-slash text-muted fs-1 mb-3 opacity-50"></i>
+                                <h5 class="fw-bold text-dark">No Broadcasts Dispatched Yet</h5>
+                                <p class="text-muted small mb-0">Use the "Notify Donors" button on any active campaign to broadcast live alerts.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer bg-white border-top px-4 py-3">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#createCampaignModal">
+                        <i class="fa-solid fa-plus me-1"></i> Add Another Campaign
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CREATE CAMPAIGN MODAL ==================== -->
+    <div class="modal fade" id="createCampaignModal" tabindex="-1" aria-labelledby="createCampaignModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white border-bottom border-secondary px-4 py-3">
+                    <h5 class="modal-title fw-bold text-white mb-0" id="createCampaignModalLabel">
+                        <i class="fa-solid fa-folder-plus text-warning me-2"></i> Create New Campaign Drive
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/admin/add_campaign" method="POST">
+                    <div class="modal-body p-4 bg-white">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Campaign Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="title" placeholder="e.g. Diwali Sweets & Festive Clothes Drive" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" name="category" required>
+                                <option value="Nutrition & Food Drive">Nutrition & Food Drive</option>
+                                <option value="Child Education">Child Education</option>
+                                <option value="Medical Aid & Healthcare">Medical Aid & Healthcare</option>
+                                <option value="Festival Celebration" selected>Festival Celebration</option>
+                                <option value="Shelter Upgrades">Shelter Upgrades</option>
+                                <option value="Winter Care">Winter Care</option>
+                                <option value="Emergency Relief">Emergency Relief</option>
+                            </select>
+                            <input type="hidden" name="target_amount" value="0">
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase text-muted">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="start_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase text-muted">End Date (Optional)</label>
+                                <input type="date" class="form-control" name="end_date">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Launch Status <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status" required>
+                                <option value="Active" selected>🟢 Active (Go Live Immediately)</option>
+                                <option value="Upcoming">📅 Upcoming (Scheduled Pipeline)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Description & Purpose</label>
+                            <textarea class="form-control" name="description" rows="3" placeholder="Explain the purpose of this drive and how donors can join or support..."></textarea>
+                        </div>
+
+                        <div class="form-check p-3 bg-light rounded-3 border">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" name="notify_donors" value="yes" id="notifyCheck" checked>
+                            <label class="form-check-label fw-bold text-dark small" for="notifyCheck">
+                                <i class="fa-solid fa-bullhorn text-warning me-1"></i> Notify registered donors to join if they want to
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm">Publish Campaign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== BROADCAST NOTIFICATION MODAL ==================== -->
+    <div class="modal fade" id="broadcastCampaignModal" tabindex="-1" aria-labelledby="broadcastModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-warning text-dark px-4 py-3">
+                    <h5 class="modal-title fw-bold mb-0" id="broadcastModalLabel">
+                        <i class="fa-solid fa-bullhorn me-2"></i> Notify Donors to Join Campaign
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="broadcastForm" action="" method="POST">
+                    <div class="modal-body p-4 bg-white">
+                        <div class="p-3 bg-light rounded-3 border mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Target Campaign:</span>
+                                <strong class="text-dark" id="broadcastCampaignTitle">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Campaign Dates:</span>
+                                <strong class="text-dark" id="broadcastDatesDisplay">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Audience:</span>
+                                <span class="badge bg-dark text-white rounded-pill">All Registered Donors ({{ total_donors_count }})</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Invitation Message</label>
+                            <textarea class="form-control" name="custom_message" id="broadcastMessageInput" rows="4" required></textarea>
+                            <small class="text-muted mt-1 d-block">This invitation will be sent to all registered donors inviting them to join if they wish.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Send Join Invitation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

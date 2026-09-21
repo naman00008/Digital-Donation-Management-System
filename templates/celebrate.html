@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrate With Our Kids - RayOfTrust</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+            --joy-color: #0d6efd;
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hero-celebrate {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 70px 0 50px 0;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 30px rgba(13, 110, 253, 0.2);
+        }
+        .nav-link.custom-hover {
+            color: white !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            margin-left: 15px;
+        }
+        .nav-link.custom-hover:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .amount-chip {
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease-in-out;
+            background: white;
+            color: #495057;
+        }
+        .amount-chip:hover {
+            border-color: #0d6efd;
+            color: #0d6efd;
+            background: #f0f7ff;
+            transform: translateY(-1px);
+        }
+        .amount-chip.active {
+            border-color: #0d6efd;
+            background: #0d6efd;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+        .occasion-pill {
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            background: white;
+            margin-bottom: 10px;
+            margin-right: 8px;
+        }
+        .occasion-pill:hover {
+            border-color: #0dcaf0;
+            color: #0d6efd;
+        }
+        .occasion-pill.active {
+            border-color: #0d6efd;
+            background: #0d6efd;
+            color: white;
+        }
+        .slot-btn {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            text-align: left;
+        }
+        .slot-btn:hover {
+            border-color: #0dcaf0;
+        }
+        .slot-btn.active {
+            border-color: #0d6efd;
+            background: #f0f7ff;
+        }
+        .mode-btn {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        .mode-btn:hover {
+            border-color: #0dcaf0;
+        }
+        .mode-btn.active {
+            border-color: #0d6efd;
+            background: #f0f7ff;
+        }
+        .celebration-choice-btn {
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 72px;
+        }
+        .celebration-choice-btn:hover {
+            border-color: #93c5fd;
+            background: #f8faff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .celebration-choice-btn.active {
+            border-color: #0d6efd !important;
+            background: #eff6ff !important;
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.16);
+        }
+        .celebration-choice-btn .choice-icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            background: #f8fafc;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .celebration-choice-btn.active .choice-icon-wrap {
+            background: #dbeafe;
+        }
+        .celebration-choice-btn .choice-text {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.3;
+        }
+        .celebration-choice-btn.active .choice-text {
+            color: #1d4ed8;
+        }
+        .celebration-choice-btn .choice-radio {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+        .celebration-choice-btn.active .choice-radio {
+            color: #0d6efd;
+        }
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid #edf2f7;
+        }
+        .section-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0284c7;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        /* Razorpay-style Gateway Layout for Celebration */
+        .payment-sidebar { background: #f8f9fa; border-right: 1px solid #e9ecef; padding: 0; display: flex; flex-direction: column; }
+        .payment-sidebar .nav-link { 
+            color: #495057; border-radius: 0; padding: 18px 24px; border-left: 4px solid transparent; 
+            font-weight: 500; font-size: 0.95rem; text-align: left; transition: all 0.2s;
+        }
+        .payment-sidebar .nav-link:hover { background: #e9ecef; }
+        .payment-sidebar .nav-link.active { 
+            background: white; color: #0d6efd; border-left-color: #0d6efd; font-weight: 700; box-shadow: -5px 0 10px rgba(0,0,0,0.02);
+        }
+        .payment-sidebar .nav-link i { width: 28px; text-align: center; margin-right: 12px; font-size: 1.1rem; }
+        .payment-content { padding: 40px 50px; position: relative; min-height: 480px; }
+        .form-control-custom { 
+            background: #fff; border: 1.5px solid #ced4da; padding: 14px 18px; border-radius: 10px; font-size: 1rem; transition: 0.3s;
+        }
+        .form-control-custom:focus { border-color: #0d6efd; box-shadow: 0 0 0 4px rgba(13,110,253,0.15); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fa-solid fa-hands-holding-heart me-2"></i>RayOfTrust
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover" href="/"><i class="fa-solid fa-house me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover" href="/donate"><i class="fa-solid fa-heart me-1"></i> Donate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover active" href="/celebrate"><i class="fa-solid fa-cake-candles me-1"></i> Celebrate</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover" href="/campaigns"><i class="fa-solid fa-bullhorn me-1"></i> Campaigns</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover" href="/donor"><i class="fa-solid fa-user me-1"></i> Donor Portal</a>
+                    </li>
+                    {% if donor %}
+                    <li class="nav-item ms-lg-2">
+                        <a href="/logout?next=celebrate" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout ({{ donor.name }})
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link custom-hover" href="/admin"><i class="fa-solid fa-lock me-1"></i> Admin</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <div class="hero-celebrate">
+        <div class="container">
+            <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                🎉 Turn Your Special Days Into Pure Joy
+            </span>
+            <h1 class="display-5 fw-bold mb-3">Celebrate With Our NGO Kids</h1>
+            <p class="lead mx-auto" style="max-width: 720px; opacity: 0.95;">
+                Make your Birthday, Anniversary, or special milestone truly memorable. Share cakes, delicious meals, gifts, and joyful smiles with all our shelter children!
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Booking Wizard Container -->
+    <div class="container my-5">
+        <form method="POST" action="/celebrate" id="celebrateForm">
+            <input type="hidden" name="occasion_type" id="selectedOccasion" value="Birthday">
+            <input type="hidden" name="time_slot" id="selectedTimeSlot" value="Afternoon Feast (1:00 PM - 3:00 PM)">
+            <input type="hidden" name="package_type" id="selectedPackage" value="Celebration Sponsorship">
+            <input type="hidden" name="amount" id="selectedAmount" value="5000">
+            <input type="hidden" name="attendance_mode" id="selectedAttendance" value="In-Person Visit">
+            <input type="hidden" name="payment_method" id="celebrate_payment_method" value="UPI QR Code (namanmtj2005-2@okicici)">
+            <input type="hidden" name="shelter_kid_id" id="selectedShelterKidId" value="">
+
+            <div class="row" id="celebrateWizardRow">
+                <!-- Left Column: Form Steps -->
+                <div class="col-lg-8">
+
+                    <!-- Step 1: Select Occasion & Celebrant -->
+                    <div class="form-section">
+                        <span class="section-badge"><i class="fa-solid fa-cake-candles me-1"></i> STEP 1 OF 5</span>
+                        <h4 class="fw-bold mb-3">What are we celebrating?</h4>
+                        <p class="text-muted small mb-4">Choose how you would like to bring happiness to the shelter children!</p>
+
+                        <!-- Celebration Category Mode Selector -->
+                        <div class="mb-4 p-3 bg-light rounded-4 border">
+                            <label class="form-label fw-bold text-dark mb-2">Choose How You Wish to Celebrate:</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="celebration-choice-btn active" id="typeToggleFamily" onclick="switchCelebrationType('family')">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="choice-icon-wrap">🎉</div>
+                                            <div class="choice-text">Celebrate My / Family's Day</div>
+                                        </div>
+                                        <i class="fa-solid fa-circle-check choice-radio" id="iconToggleFamily"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="celebration-choice-btn" id="typeToggleShelterKid" onclick="switchCelebrationType('kid')">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="choice-icon-wrap">🎂</div>
+                                            <div class="choice-text">Sponsor an NGO Child's Birthday</div>
+                                        </div>
+                                        <i class="fa-regular fa-circle choice-radio" id="iconToggleKid"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shelter Kids Birthday Directory (Visible when Mode is 'kid') -->
+                        <div id="shelterKidsDirectory" class="mb-4 p-3 border rounded-4 bg-white shadow-sm" style="display: none; border-left: 5px solid #0d6efd !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-cake-candles text-primary me-2"></i>Wakad Shelter Kids' Birthday Directory</h5>
+                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold">Ages 5 to 18</span>
+                            </div>
+
+                            <!-- Filter Pills -->
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill active px-3 kid-filter-btn" onclick="filterKids('all', this)">All Kids ({{ shelter_kids|length }})</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kid-filter-btn" onclick="filterKids('young', this)">Younger (5–10 yrs)</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kid-filter-btn" onclick="filterKids('teen', this)">Teens (11–18 yrs)</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kid-filter-btn" onclick="filterKids('Girl', this)">Girls</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 kid-filter-btn" onclick="filterKids('Boy', this)">Boys</button>
+                            </div>
+
+                            <!-- Selected Kid Banner (if one is selected) -->
+                            <div id="selectedKidAlert" class="alert alert-success d-none align-items-center justify-content-between p-3 mb-3 rounded-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="selectedKidAvatar" class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background: #0d6efd; font-size: 1.2rem;">A</div>
+                                    <div>
+                                        <div class="fw-bold text-dark" id="selectedKidNameDisplay">Sponsoring Child's Birthday</div>
+                                        <small class="text-muted" id="selectedKidDetailsDisplay">Turning age on date</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="clearSelectedKid()">Choose Another Child</button>
+                            </div>
+
+                            <!-- Kids Cards Grid -->
+                            <div class="row g-2 custom-scroll" style="max-height: 420px; overflow-y: auto;" id="shelterKidsGrid">
+                                {% for kid in shelter_kids %}
+                                <div class="col-md-6 kid-item" data-gender="{{ kid.gender }}" data-age="{{ kid.age }}">
+                                    <div class="p-3 border rounded-3 h-100 bg-light position-relative kid-card" id="kid-card-{{ kid.id }}" style="transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-start gap-2 mb-2">
+                                            <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px; background: {{ kid.avatar_color or '#0d6efd' }}; font-size: 1.1rem;">
+                                                {{ kid.name[0] }}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6 class="fw-bold text-dark mb-0">{{ kid.name }}</h6>
+                                                    <span class="badge bg-white text-primary border border-primary-subtle small" style="font-size: 0.72rem;">Age {{ kid.age }}</span>
+                                                </div>
+                                                <div class="small fw-semibold text-primary">
+                                                    <i class="fa-solid fa-cake-candles me-1"></i> {{ kid.dob }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-muted small mb-1" style="font-size: 0.75rem;">
+                                            <i class="fa-solid fa-star text-warning me-1"></i><strong>Dream:</strong> "{{ kid.dream_aspiration }}"
+                                        </div>
+                                        <div class="text-muted small mb-2" style="font-size: 0.75rem;">
+                                            <i class="fa-solid fa-heart text-primary me-1"></i><strong>Loves:</strong> {{ kid.favorite_treat }}
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100 py-1 fw-bold select-kid-btn" onclick='selectShelterKid({{ kid.id }}, {{ kid.name|tojson }}, {{ kid.age }}, {{ kid.dob|tojson }}, {{ kid.favorite_treat|tojson }}, {{ kid.avatar_color|tojson }})'>
+                                            <i class="fa-solid fa-gift me-1"></i> Sponsor My Birthday
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Standard Occasion Selector (Hidden if Sponsoring Shelter Kid) -->
+                        <div id="standardOccasionSection" class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Select Occasion</label>
+                            <div class="d-flex flex-wrap">
+                                <div class="occasion-pill active" onclick="selectOccasion(this, 'Birthday')">
+                                    <span>🎂</span> Birthday
+                                </div>
+                                <div class="occasion-pill" onclick="selectOccasion(this, 'Anniversary')">
+                                    <span>💍</span> Anniversary
+                                </div>
+                                <div class="occasion-pill" onclick="selectOccasion(this, 'Festival')">
+                                    <span>🪔</span> Festival Celebration
+                                </div>
+                                <div class="occasion-pill" onclick="selectOccasion(this, 'Milestone / Achievement')">
+                                    <span>🎓</span> Milestone / Promotion
+                                </div>
+                                <div class="occasion-pill" onclick="selectOccasion(this, 'In Loving Memory')">
+                                    <span>🕊️</span> In Loving Memory
+                                </div>
+                                <div class="occasion-pill" onclick="selectOccasion(this, 'Special Day of Giving')">
+                                    <span>🎈</span> Day of Giving
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold" id="celebrantLabel">Celebrant's Name / Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="celebrant_name" id="celebrantInput" placeholder="e.g. Aarav's 8th Birthday / Mom & Dad's 25th" required oninput="updateSummary()">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Message for Kids' Banner</label>
+                                <input type="text" class="form-control form-control-lg" name="special_message" id="bannerMsgInput" placeholder="e.g. Wishing love & bright smiles!">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Date & Time Slot -->
+                    <div class="form-section">
+                        <span class="section-badge"><i class="fa-regular fa-calendar-days me-1"></i> STEP 2 OF 5</span>
+                        <h4 class="fw-bold mb-3">Choose Date & Preferred Time</h4>
+                        <p class="text-muted small mb-4">Select your celebration date and the best time slot for the activity.</p>
+
+                        <div class="row g-4">
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Celebration Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-lg" name="celebration_date" id="celebrationDate" required onchange="updateSummary()">
+                                <small class="text-muted d-block mt-2"><i class="fa-solid fa-circle-info me-1 text-primary"></i> You can book anytime from today onward.</small>
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold mb-2">Preferred Time Slot <span class="text-danger">*</span></label>
+                                
+                                <div class="slot-btn mb-2" onclick="selectSlot(this, 'Morning Joy (10:00 AM - 12:00 PM)')">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="fw-bold text-dark">☀️ Morning Joy</span>
+                                            <small class="text-muted d-block">10:00 AM – 12:00 PM (Morning Snacks, Cake & Games)</small>
+                                        </div>
+                                        <i class="fa-solid fa-circle-check text-primary fs-5 d-none slot-check"></i>
+                                    </div>
+                                </div>
+
+                                <div class="slot-btn active mb-2" onclick="selectSlot(this, 'Afternoon Feast (1:00 PM - 3:00 PM)')">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="fw-bold text-dark">🍲 Afternoon Feast</span>
+                                            <small class="text-muted d-block">1:00 PM – 3:00 PM (Lunch Meal, Cake Cutting & Music)</small>
+                                        </div>
+                                        <i class="fa-solid fa-circle-check text-primary fs-5 slot-check"></i>
+                                    </div>
+                                </div>
+
+                                <div class="slot-btn" onclick="selectSlot(this, 'Evening Smiles (4:30 PM - 6:30 PM)')">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="fw-bold text-dark">🌇 Evening Smiles</span>
+                                            <small class="text-muted d-block">4:30 PM – 6:30 PM (Evening Snacks, Cake, Arts & Dance)</small>
+                                        </div>
+                                        <i class="fa-solid fa-circle-check text-primary fs-5 d-none slot-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Celebration Contribution Amount (Self-determined) -->
+                    <div class="form-section">
+                        <span class="section-badge"><i class="fa-solid fa-hand-holding-heart me-1"></i> STEP 3 OF 5</span>
+                        <h4 class="fw-bold mb-2">Set Celebration Contribution Amount</h4>
+                        <p class="text-muted small mb-4">Choose how much you would like to contribute towards the celebration. 100% of your contribution directly funds fresh festive meals, custom cake, festive decoration, and joy for <strong>ALL children residing in the shelter home</strong>.</p>
+
+                        <div class="card border-0 bg-light rounded-4 p-4 mb-3">
+                            <label class="form-label fw-bold text-dark mb-2 fs-6">
+                                <i class="fa-solid fa-indian-rupee-sign text-primary me-1"></i> Enter Sponsorship Amount (₹) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group input-group-lg mb-3 shadow-sm rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-white border-end-0 fw-bold fs-3 text-primary px-4">₹</span>
+                                <input type="number" class="form-control form-control-lg border-start-0 fs-2 fw-bold text-dark ps-2" id="customCelebrationAmount" min="100" step="100" placeholder="e.g. 5000" value="5000" oninput="onCustomAmountChange(this.value)">
+                            </div>
+
+                            <!-- Quick Preset Amount Chips -->
+                            <div>
+                                <span class="text-muted small fw-bold d-block mb-2"><i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Quick Amount Suggestions:</span>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn amount-chip" data-amount="1500" onclick="setPresetAmount(1500)">₹1,500</button>
+                                    <button type="button" class="btn amount-chip" data-amount="2500" onclick="setPresetAmount(2500)">₹2,500</button>
+                                    <button type="button" class="btn amount-chip active" data-amount="5000" onclick="setPresetAmount(5000)">₹5,000</button>
+                                    <button type="button" class="btn amount-chip" data-amount="7500" onclick="setPresetAmount(7500)">₹7,500</button>
+                                    <button type="button" class="btn amount-chip" data-amount="10000" onclick="setPresetAmount(10000)">₹10,000</button>
+                                    <button type="button" class="btn amount-chip" data-amount="15000" onclick="setPresetAmount(15000)">₹15,000</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3">
+                            <div class="fs-2 text-primary"><i class="fa-solid fa-shield-heart"></i></div>
+                            <div>
+                                <strong class="text-dark small d-block">100% Impact & Full Transparency</strong>
+                                <small class="text-muted">Includes custom cake cutting, party snacks, hot festive meals, balloon decorations, and digital photo/video memories.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Attendance Mode -->
+                    <div class="form-section">
+                        <span class="section-badge"><i class="fa-solid fa-users me-1"></i> STEP 4 OF 5</span>
+                        <h4 class="fw-bold mb-2">How will you participate?</h4>
+                        <p class="text-muted small mb-4">Choose whether you'd like to visit in person, join via video call, or have our team host it on your behalf.</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="mode-btn active text-center h-100" onclick="selectMode(this, 'In-Person Visit')">
+                                    <div class="fs-2 mb-2">🏢</div>
+                                    <div class="fw-bold">In-Person Visit</div>
+                                    <small class="text-muted d-block mt-1">Visit our shelter center, cut the cake & interact directly with the kids.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mode-btn text-center h-100" onclick="selectMode(this, 'Live Video Call')">
+                                    <div class="fs-2 mb-2">💻</div>
+                                    <div class="fw-bold">Live Video Call</div>
+                                    <small class="text-muted d-block mt-1">Join via live Zoom / Google Meet on our big screen from anywhere.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mode-btn text-center h-100" onclick="selectMode(this, 'Hosted by NGO Team')">
+                                    <div class="fs-2 mb-2">💌</div>
+                                    <div class="fw-bold">Remote Celebration</div>
+                                    <small class="text-muted d-block mt-1">Our team coordinates everything and sends HD photos, videos & cards.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Venue Note for In-Person Visit -->
+                        <div class="mt-3 p-3 bg-light rounded-3 border">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fa-solid fa-location-dot text-primary fs-5 mt-1"></i>
+                                <div>
+                                    <strong class="text-dark">Shelter Center Venue:</strong>
+                                    <div class="text-muted small">B4, Sheikh, Safa Complex, 2, Waghmare Rd, Shankar Kalat Nagar, Wakad, Pune, Pimpri-Chinchwad, Maharashtra 411057</div>
+                                    <div class="text-muted small mt-1"><i class="fa-solid fa-phone me-1 text-primary"></i> <strong>Helpdesk Coordinator:</strong> 097302 55167</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Contact & Account Details -->
+                    <div class="form-section">
+                        <span class="section-badge"><i class="fa-solid fa-address-card me-1"></i> STEP 5 OF 5</span>
+                        <h4 class="fw-bold mb-3">Your Details</h4>
+                        {% if donor %}
+                        <div class="alert alert-success d-flex align-items-center justify-content-between mb-3 p-3 rounded-3 shadow-sm border-0">
+                            <div class="d-flex align-items-center">
+                                <i class="fa-solid fa-circle-check fs-4 me-3 text-success"></i>
+                                <div>
+                                    <strong class="d-block text-dark">Logged in as {{ donor.name }}</strong>
+                                    <small class="text-muted">Email: {{ donor.email }} • Your celebration booking will be automatically linked to your Donor Portal.</small>
+                                </div>
+                            </div>
+                            <a href="/logout?next=celebrate" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold ms-3 text-nowrap shadow-sm">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i> Log Out
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-4">We will send your Digital Celebration Pass and coordination updates to these contact details.</p>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Your Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="donor_name" value="{{ donor.name if donor else '' }}" required placeholder="e.g. Rahul Sharma" oninput="updateSummary()">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="donor_email" value="{{ donor.email if donor else '' }}" required placeholder="e.g. rahul@example.com">
+                            </div>
+                            <div class="col-md-{{ '12' if donor else '6' }}">
+                                <label class="form-label fw-bold">Phone / WhatsApp Number <span class="text-danger">*</span></label>
+                                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                    <select class="form-select bg-light fw-bold text-dark border-end-0" id="donorCountryCode" style="max-width: 140px;" onchange="updateFullPhone()">
+                                        <option value="+91" selected>🇮🇳 +91 (IN)</option>
+                                        <option value="+114">🌐 +114</option>
+                                        <option value="+1">🇺🇸 +1 (US)</option>
+                                        <option value="+44">🇬🇧 +44 (UK)</option>
+                                        <option value="+971">🇦🇪 +971 (AE)</option>
+                                        <option value="+61">🇦🇺 +61 (AU)</option>
+                                        <option value="+65">🇸🇬 +65 (SG)</option>
+                                        <option value="+966">🇸🇦 +966 (SA)</option>
+                                        <option value="+49">🇩🇪 +49 (DE)</option>
+                                        <option value="+33">🇫🇷 +33 (FR)</option>
+                                        <option value="+81">🇯🇵 +81 (JP)</option>
+                                        <option value="+977">🇳🇵 +977 (NP)</option>
+                                        <option value="+880">🇧🇩 +880 (BD)</option>
+                                        <option value="+94">🇱🇰 +94 (LK)</option>
+                                        <option value="+974">🇶🇦 +974 (QA)</option>
+                                        <option value="+968">🇴🇲 +968 (OM)</option>
+                                        <option value="+965">🇰🇼 +965 (KW)</option>
+                                        <option value="+27">🇿🇦 +27 (ZA)</option>
+                                        <option value="+60">🇲🇾 +60 (MY)</option>
+                                        <option value="+64">🇳🇿 +64 (NZ)</option>
+                                    </select>
+                                    <input type="tel" class="form-control" id="donorPhoneRaw" maxlength="10" minlength="10" placeholder="9876543210 (10 digits)" required onkeydown="enforceDigitOnly(event)" oninput="handlePhoneInput(this)">
+                                </div>
+                                <input type="hidden" name="donor_phone" id="donorPhoneFull" value="{{ donor.phone if donor else '' }}">
+                                <div class="d-flex justify-content-between align-items-center mt-1 px-1">
+                                    <small class="text-danger small" id="phoneLockStatus">
+                                        <i class="fa-solid fa-lock me-1"></i> Exactly 10 digits required
+                                    </small>
+                                    <small class="fw-bold" id="phoneDigitCount" style="color: #dc3545;">0/10</small>
+                                </div>
+                            </div>
+                            {% if not donor %}
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Create Account Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="donor_password" required placeholder="Create a password for your Donor Portal">
+                                <small class="text-muted">Use this email & password to access your Donor Portal anytime.</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Live Booking Summary & Submission Card -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 25px; border-top: 5px solid #0d6efd !important;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-receipt me-2 text-primary"></i> Celebration Summary</h5>
+                            
+                            <div class="bg-light p-3 rounded-3 mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Occasion:</span>
+                                    <span class="fw-bold text-dark small" id="summaryOccasion">🎂 Birthday</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Celebrant:</span>
+                                    <span class="fw-bold text-dark small" id="summaryCelebrant">Aarav's Special Day</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Date:</span>
+                                    <span class="fw-bold text-primary small" id="summaryDate">Select a date</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Time Slot:</span>
+                                    <span class="fw-bold text-dark small" id="summarySlot">1:00 PM – 3:00 PM</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted small">Attendance:</span>
+                                    <span class="fw-bold text-success small" id="summaryMode">In-Person Visit</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-muted small">Sponsorship:</span>
+                                    <span class="fw-bold text-dark small text-end" id="summaryPackage">Celebration Sponsorship</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                    <span class="fw-bold">Total Sponsorship:</span>
+                                    <span class="fs-4 fw-bold text-primary" id="summaryAmount">₹5,000</span>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-warning py-2 px-3 small border-0 mb-3">
+                                <i class="fa-solid fa-heart me-1 text-primary"></i> <strong>100% Tax Deductible</strong> (80G Receipt generated automatically).
+                            </div>
+
+                            <!-- Trigger Payment Gateway Button -->
+                            <button type="button" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="startCelebrationPayment()">
+                                <i class="fa-solid fa-lock me-2"></i> Proceed to Payment & Accept Proposal
+                            </button>
+
+                            <p class="text-center text-muted small mt-3 mb-0">
+                                <i class="fa-solid fa-shield-halved me-1"></i> Instant verification & Digital Celebration Pass.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Interactive Payment Gateway (Exact Same as Donation Portal) -->
+            <div id="celebration-payment-gateway" class="row g-0" style="display: none; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #e9ecef; margin-bottom: 40px;">
+                <!-- Sidebar -->
+                <div class="col-md-4 payment-sidebar">
+                    <div class="p-4 p-md-5 border-bottom bg-white">
+                        <p class="text-muted mb-1 small fw-bold text-uppercase">Celebration Sponsorship</p>
+                        <h2 class="fw-bold text-dark mb-0" id="gwDisplayAmount">₹5,000</h2>
+                        <small class="text-muted d-block mt-1" id="gwDisplayOccasion">Birthday • Nutritious Feast & Cake</small>
+                        <small class="text-primary d-block fw-bold mt-1" id="gwDisplayCelebrant">Aarav</small>
+                    </div>
+                    <div class="nav flex-column nav-pills flex-grow-1" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#celeb-tab-upi" type="button" onclick="onCelebTabSwitch('upi')">
+                            <i class="fa-solid fa-qrcode text-success"></i> UPI / QR Code
+                        </button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#celeb-tab-card" type="button" onclick="onCelebTabSwitch('card')">
+                            <i class="fa-regular fa-credit-card text-primary"></i> Credit / Debit Card
+                        </button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#celeb-tab-netbanking" type="button" onclick="onCelebTabSwitch('netbanking')">
+                            <i class="fa-solid fa-building-columns text-warning"></i> Net Banking
+                        </button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#celeb-tab-neft" type="button" onclick="onCelebTabSwitch('neft')">
+                            <i class="fa-solid fa-money-bill-transfer text-secondary"></i> NEFT / RTGS
+                        </button>
+                    </div>
+                    <div class="p-4 text-center mt-auto border-top bg-light">
+                        <small class="text-success fw-bold"><i class="fa-solid fa-lock"></i> 256-bit SSL Bank Secured</small>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div class="col-md-8 payment-content bg-white">
+                    <!-- Processing Overlay -->
+                    <div id="celeb-processing-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; border-radius: 0 16px 16px 0;">
+                        <div class="bank-loader" style="width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #0d6efd; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                        <h4 class="fw-bold text-dark" id="celebProcessingTitle">Verifying Transaction...</h4>
+                        <p class="text-muted small">Confirming payment and accepting celebration proposal for shelter kids.</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold text-dark mb-0">Select Payment Method</h4>
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="cancelCelebrationPayment()">Cancel & Edit</button>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- UPI Tab -->
+                        <div class="tab-pane fade show active" id="celeb-tab-upi">
+                            <div class="text-center mb-3">
+                                <p class="text-muted mb-2">Scan the QR code with any UPI app (Google Pay, PhonePe, Paytm, BHIM)</p>
+                                <div class="d-inline-block p-2 bg-white rounded-4 shadow-sm border border-2 border-primary mb-2">
+                                    <img id="celebDynamicQr" src="" alt="Live UPI QR" class="rounded" style="width: 170px; height: 170px;">
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-primary border font-monospace px-3 py-2 fs-6">namanmtj2005-2@okicici</span>
+                                </div>
+                            </div>
+
+                            <!-- Option A: Direct Confirmation Button -->
+                            <div class="mb-3 p-3 bg-light rounded-3 border text-center">
+                                <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="processCelebrationPayment('upi')">
+                                    <i class="fa-solid fa-calendar-check me-2"></i> Confirm Celebration Booking & View Pass
+                                </button>
+                                <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+                                    <i class="fa-solid fa-shield-halved text-success me-1"></i> Creates your donor account, registers your celebration, and issues your pass.
+                                </small>
+                            </div>
+
+                            <!-- Option B: Direct Scan & UTR Entry -->
+                            <div class="p-3 bg-white rounded-3 border text-start">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    <i class="fa-solid fa-receipt text-primary me-1"></i> Already paid via GPay / PhonePe / Paytm?
+                                </label>
+                                <p class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                    Enter your 12-digit UPI UTR / Transaction Reference ID from your payment app:
+                                </p>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control font-monospace" id="celeb_upi_utr_input" placeholder="e.g. 423589012345 (12 digits)" maxlength="25">
+                                    <button class="btn btn-outline-primary fw-bold px-3" type="button" onclick="submitCelebrationWithUtr()">
+                                        Submit UTR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Tab -->
+                        <div class="tab-pane fade" id="celeb-tab-card">
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Card Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 px-3"><i class="fa-brands fa-cc-visa text-secondary fs-4"></i></span>
+                                    <input type="text" class="form-control form-control-custom border-start-0 ps-0" placeholder="0000 0000 0000 0000" value="4532 8901 2345 6789">
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Valid Thru</label>
+                                    <input type="text" class="form-control form-control-custom" placeholder="MM/YY" value="12/28">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted text-uppercase">CVV</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control form-control-custom border-end-0" placeholder="•••" value="888" maxlength="4">
+                                        <span class="input-group-text bg-light border-start-0 text-muted"><i class="fa-solid fa-credit-card"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Name on Card</label>
+                                <input type="text" class="form-control form-control-custom" placeholder="As printed on card" value="Rahul Sharma">
+                            </div>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="processCelebrationPayment('card')">Pay Securely</button>
+                        </div>
+
+                        <!-- Net Banking Tab -->
+                        <div class="tab-pane fade" id="celeb-tab-netbanking">
+                            <p class="text-muted mb-4">Select your bank from the dropdown below</p>
+                            <select class="form-select form-control-custom mb-4" style="cursor: pointer;">
+                                <option selected disabled>Popular Banks...</option>
+                                <option value="sbi">State Bank of India (SBI)</option>
+                                <option value="hdfc">HDFC Bank</option>
+                                <option value="icici">ICICI Bank</option>
+                                <option value="axis">Axis Bank</option>
+                                <option value="pnb">Punjab National Bank (PNB)</option>
+                                <option value="bob">Bank of Baroda</option>
+                            </select>
+                            <div class="p-4 bg-light rounded-3 text-center mb-4 border">
+                                <i class="fa-solid fa-shield-halved text-success fs-1 mb-3"></i>
+                                <p class="small text-muted mb-0">You will be securely redirected to your bank's website to complete the payment authorization.</p>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="processCelebrationPayment('netbanking')">Proceed to Bank</button>
+                        </div>
+
+                        <!-- NEFT Tab -->
+                        <div class="tab-pane fade" id="celeb-tab-neft">
+                            <div class="alert alert-info bg-light border-primary border-start border-4 text-start mb-4">
+                                <strong>High-Value Contribution:</strong> Transfer directly to the NGO verified charitable account.
+                            </div>
+                            <div class="bg-light border rounded-3 p-4 text-start mb-4">
+                                <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Beneficiary Name</div>
+                                <div class="col-sm-7 fw-bold text-dark">A Ray Of Hope Foundation</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Account Number</div>
+                                <div class="col-sm-7 fw-bold text-dark fs-5 tracking-widest">999888777666555</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">IFSC Code</div>
+                                <div class="col-sm-7 fw-bold text-dark">HDFC0001234</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">UTR / Reference Number</label>
+                            <input type="text" class="form-control form-control-custom" placeholder="Enter bank reference after transfer">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="processCelebrationPayment('neft')">Confirm Transfer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 7: OTP Verification Modal for Celebration -->
+        <div class="card shadow-lg border-0 rounded-4 mb-4" id="celeb-otp-verification" style="display: none; max-width: 450px; margin: 0 auto;">
+            <div class="card-header bg-white text-center py-4 border-0 border-bottom">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/MasterCard_SecureCode_logo.svg/1200px-MasterCard_SecureCode_logo.svg.png" height="30" alt="Secure" class="mb-2">
+                <h5 class="fw-bold text-dark mb-0">Bank Authentication</h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <i class="fa-solid fa-mobile-screen-button text-primary fs-1 mb-3"></i>
+                <p class="text-muted mb-4 small">A One Time Password (OTP) has been sent to your registered mobile number ending in <strong>XXXX89</strong></p>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary small text-uppercase">Enter OTP</label>
+                    <input type="text" class="form-control form-control-lg text-center fw-bold" value="927401" maxlength="6" style="letter-spacing: 12px; font-size: 1.5rem;">
+                </div>
+                <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow mb-3" style="background: linear-gradient(135deg, #0d6efd, #0dcaf0); border: none;" onclick="verifyCelebrationOTP()">Verify & Confirm Payment</button>
+                <p class="text-muted small mb-0">Didn't receive it? <a href="#" class="text-decoration-none">Resend OTP</a></p>
+            </div>
+        </div>
+
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5 text-center">
+        <div class="container">
+            <p class="mb-1">© 2026 RayOfTrust - Digital Donation & Joy Management System</p>
+            <p class="text-muted small mb-0">Pune Shelter: B4, Sheikh, Safa Complex, 2, Waghmare Rd, Shankar Kalat Nagar, Wakad, Pune, Pimpri-Chinchwad, Maharashtra 411057 • Coordinator: 097302 55167</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactivity -->
+    <script>
+        let celebUpiTimer = null;
+        let celebCountdownInterval = null;
+
+        // Set default minimum date to today
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('celebrationDate');
+            dateInput.min = today;
+            
+            // Set default date to 3 days from now
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 3);
+            dateInput.value = defaultDate.toISOString().split('T')[0];
+            
+            updateSummary();
+        });
+
+        function switchCelebrationType(type) {
+            const toggleFamily = document.getElementById('typeToggleFamily');
+            const toggleKid = document.getElementById('typeToggleShelterKid');
+            const iconFamily = document.getElementById('iconToggleFamily');
+            const iconKid = document.getElementById('iconToggleKid');
+            const dir = document.getElementById('shelterKidsDirectory');
+            const stdOccasion = document.getElementById('standardOccasionSection');
+            const celebrantLabel = document.getElementById('celebrantLabel');
+            const celebrantInput = document.getElementById('celebrantInput');
+
+            if (type === 'kid') {
+                if (toggleFamily) toggleFamily.classList.remove('active');
+                if (toggleKid) toggleKid.classList.add('active');
+                if (iconFamily) iconFamily.className = 'fa-regular fa-circle choice-radio';
+                if (iconKid) iconKid.className = 'fa-solid fa-circle-check choice-radio';
+
+                dir.style.display = 'block';
+                stdOccasion.style.display = 'none';
+                document.getElementById('selectedOccasion').value = "Shelter Child Birthday";
+                celebrantLabel.innerHTML = 'Sponsored Child <span class="text-danger">*</span>';
+                celebrantInput.placeholder = "Select an NGO child above or type name";
+            } else {
+                if (toggleKid) toggleKid.classList.remove('active');
+                if (toggleFamily) toggleFamily.classList.add('active');
+                if (iconKid) iconKid.className = 'fa-regular fa-circle choice-radio';
+                if (iconFamily) iconFamily.className = 'fa-solid fa-circle-check choice-radio';
+
+                dir.style.display = 'none';
+                stdOccasion.style.display = 'block';
+                document.getElementById('selectedOccasion').value = "Birthday";
+                celebrantLabel.innerHTML = "Celebrant's Name / Title <span class=\"text-danger\">*</span>";
+                celebrantInput.placeholder = "e.g. Aarav's 8th Birthday / Mom & Dad's 25th";
+                clearSelectedKid();
+            }
+            updateSummary();
+        }
+
+        function filterKids(category, btnElement) {
+            document.querySelectorAll('.kid-filter-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const items = document.querySelectorAll('.kid-item');
+            items.forEach(item => {
+                const age = parseInt(item.getAttribute('data-age'));
+                const gender = item.getAttribute('data-gender');
+
+                if (category === 'all') {
+                    item.style.display = 'block';
+                } else if (category === 'young') {
+                    item.style.display = (age >= 5 && age <= 10) ? 'block' : 'none';
+                } else if (category === 'teen') {
+                    item.style.display = (age >= 11 && age <= 18) ? 'block' : 'none';
+                } else if (category === 'Girl' || category === 'Boy') {
+                    item.style.display = (gender === category) ? 'block' : 'none';
+                }
+            });
+        }
+
+        function selectShelterKid(id, name, age, dob, treat, color) {
+            document.querySelectorAll('.kid-card').forEach(c => {
+                c.style.border = '1px solid #dee2e6';
+                c.classList.remove('shadow-sm');
+                const b = c.querySelector('.select-kid-btn');
+                if (b) {
+                    b.classList.remove('btn-primary', 'text-white');
+                    b.classList.add('btn-outline-primary');
+                    b.innerHTML = '<i class="fa-solid fa-gift me-1"></i> Sponsor My Birthday';
+                }
+            });
+
+            const card = document.getElementById('kid-card-' + id);
+            if (card) {
+                card.style.border = '2px solid #0d6efd';
+                card.classList.add('shadow-sm');
+                const b = card.querySelector('.select-kid-btn');
+                if (b) {
+                    b.classList.remove('btn-outline-primary');
+                    b.classList.add('btn-primary', 'text-white');
+                    b.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Selected for Celebration';
+                }
+            }
+
+            document.getElementById('selectedShelterKidId').value = id;
+            document.getElementById('celebrantInput').value = `${name} (Turning ${age})`;
+            document.getElementById('bannerMsgInput').value = `Happy ${age}th Birthday ${name}! Wishing you endless joy & bright smiles!`;
+
+            // Calculate upcoming celebration date matching child's birth date this year
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const dobParts = dob.split('-'); // YYYY-MM-DD
+            let targetDate = new Date(currentYear, parseInt(dobParts[1]) - 1, parseInt(dobParts[2]));
+            if (targetDate < today) {
+                targetDate.setFullYear(currentYear + 1);
+            }
+            const dateStr = targetDate.toISOString().split('T')[0];
+            document.getElementById('celebrationDate').value = dateStr;
+
+            // Show selected banner
+            const alertBox = document.getElementById('selectedKidAlert');
+            alertBox.classList.remove('d-none');
+            alertBox.classList.add('d-flex');
+            document.getElementById('selectedKidAvatar').innerText = name.charAt(0);
+            document.getElementById('selectedKidAvatar').style.backgroundColor = color || '#0d6efd';
+            document.getElementById('selectedKidNameDisplay').innerText = `Celebrating ${name}'s ${age}th Birthday!`;
+            document.getElementById('selectedKidDetailsDisplay').innerText = `Birthday on ${dob} (Scheduled: ${dateStr}) • Favorite: ${treat}`;
+
+            updateSummary();
+
+            // Smooth scroll to Step 2 so donor can see the date and choose slot
+            const dateSection = document.getElementById('celebrationDate');
+            if (dateSection) {
+                dateSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function clearSelectedKid() {
+            document.getElementById('selectedShelterKidId').value = '';
+            document.querySelectorAll('.kid-card').forEach(c => {
+                c.style.border = '1px solid #dee2e6';
+                c.classList.remove('shadow-sm');
+                const b = c.querySelector('.select-kid-btn');
+                if (b) {
+                    b.classList.remove('btn-primary', 'text-white');
+                    b.classList.add('btn-outline-primary');
+                    b.innerHTML = '<i class="fa-solid fa-gift me-1"></i> Sponsor My Birthday';
+                }
+            });
+            const alertBox = document.getElementById('selectedKidAlert');
+            if (alertBox) {
+                alertBox.classList.remove('d-flex');
+                alertBox.classList.add('d-none');
+            }
+            document.getElementById('celebrantInput').value = '';
+            document.getElementById('bannerMsgInput').value = '';
+            updateSummary();
+        }
+
+        function selectOccasion(element, occasionName) {
+            document.querySelectorAll('.occasion-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('selectedOccasion').value = occasionName;
+            updateSummary();
+        }
+
+        function selectSlot(element, slotName) {
+            document.querySelectorAll('.slot-btn').forEach(el => {
+                el.classList.remove('active');
+                const check = el.querySelector('.slot-check');
+                if (check) check.classList.add('d-none');
+            });
+            element.classList.add('active');
+            const activeCheck = element.querySelector('.slot-check');
+            if (activeCheck) activeCheck.classList.remove('d-none');
+            document.getElementById('selectedTimeSlot').value = slotName;
+            updateSummary();
+        }
+
+        function onCustomAmountChange(val) {
+            let amt = parseFloat(val);
+            if (isNaN(amt) || amt < 0) amt = 0;
+            document.getElementById('selectedAmount').value = amt;
+
+            // Update chips active state
+            document.querySelectorAll('.amount-chip').forEach(chip => {
+                const chipAmt = parseFloat(chip.getAttribute('data-amount'));
+                if (chipAmt === amt) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+
+            updateSummary();
+        }
+
+        function setPresetAmount(val) {
+            const input = document.getElementById('customCelebrationAmount');
+            if (input) input.value = val;
+            onCustomAmountChange(val);
+        }
+
+        function selectMode(element, modeName) {
+            document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('selectedAttendance').value = modeName;
+            updateSummary();
+        }
+
+        function enforceDigitOnly(e) {
+            if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                return;
+            }
+            if (!/^[0-9]$/.test(e.key)) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.target.value.length >= 10 && e.target.selectionStart === e.target.selectionEnd) {
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        function handlePhoneInput(el) {
+            el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+            const count = el.value.length;
+            const countEl = document.getElementById('phoneDigitCount');
+            const statusEl = document.getElementById('phoneLockStatus');
+
+            if (countEl) countEl.textContent = `${count}/10`;
+
+            if (statusEl) {
+                if (count === 10) {
+                    statusEl.innerHTML = '<i class="fa-solid fa-circle-check text-success me-1"></i> Locked & Verified (10 digits)';
+                    statusEl.className = 'text-success small fw-bold';
+                    if (countEl) countEl.style.color = '#198754';
+                } else {
+                    statusEl.innerHTML = '<i class="fa-solid fa-lock text-danger me-1"></i> Exactly 10 digits required';
+                    statusEl.className = 'text-danger small';
+                    if (countEl) countEl.style.color = '#dc3545';
+                }
+            }
+            updateFullPhone();
+        }
+
+        function updateFullPhone() {
+            const codeEl = document.getElementById('donorCountryCode');
+            const code = codeEl ? codeEl.value : '+91';
+            const rawEl = document.getElementById('donorPhoneRaw');
+            const raw = rawEl ? rawEl.value.trim() : '';
+            const fullInput = document.getElementById('donorPhoneFull');
+            if (fullInput) {
+                fullInput.value = raw ? `${code} ${raw}` : '';
+            }
+        }
+
+        function initPhoneFromDonor() {
+            const fullInput = document.getElementById('donorPhoneFull');
+            if (!fullInput) return;
+            const fullPhone = fullInput.value.trim();
+            if (!fullPhone) return;
+
+            const codes = ['+114', '+971', '+966', '+977', '+880', '+91', '+44', '+61', '+65', '+49', '+33', '+81', '+94', '+974', '+968', '+965', '+27', '+60', '+64', '+1'];
+            let matchedCode = '+91';
+            let digits = fullPhone.replace(/\D/g, '');
+
+            for (let c of codes) {
+                if (fullPhone.startsWith(c)) {
+                    matchedCode = c;
+                    const codeDigits = c.replace(/\D/g, '');
+                    if (digits.startsWith(codeDigits)) {
+                        digits = digits.slice(codeDigits.length);
+                    }
+                    break;
+                }
+            }
+
+            const sel = document.getElementById('donorCountryCode');
+            if (sel) sel.value = matchedCode;
+            const rawInput = document.getElementById('donorPhoneRaw');
+            if (rawInput) {
+                rawInput.value = digits.slice(0, 10);
+                handlePhoneInput(rawInput);
+            }
+        }
+
+        function updateSummary() {
+            const occasion = document.getElementById('selectedOccasion').value;
+            const celebrant = document.getElementById('celebrantInput').value.trim() || "Celebrant's Name";
+            const dateVal = document.getElementById('celebrationDate').value;
+            const slotVal = document.getElementById('selectedTimeSlot').value;
+            const modeVal = document.getElementById('selectedAttendance').value;
+            const amountVal = document.getElementById('selectedAmount').value;
+
+            document.getElementById('summaryOccasion').textContent = occasion;
+            document.getElementById('summaryCelebrant').textContent = celebrant;
+            document.getElementById('summaryDate').textContent = dateVal ? dateVal : 'Select date';
+            document.getElementById('summarySlot').textContent = slotVal.split('(')[0].trim();
+            document.getElementById('summaryMode').textContent = modeVal;
+            document.getElementById('summaryPackage').textContent = 'Celebration Sponsorship';
+            document.getElementById('summaryAmount').textContent = '₹' + Number(amountVal || 0).toLocaleString('en-IN');
+        }
+
+        function startCelebrationPayment() {
+            const celebrant = document.getElementById('celebrantInput');
+            const dateInput = document.getElementById('celebrationDate');
+            const nameInput = document.querySelector('input[name="donor_name"]');
+            const emailInput = document.querySelector('input[name="donor_email"]');
+            const phoneRawInput = document.getElementById('donorPhoneRaw');
+            const passInput = document.querySelector('input[name="donor_password"]');
+
+            if (!celebrant.value.trim()) {
+                alert("Please enter the celebrant's name.");
+                celebrant.focus();
+                return;
+            }
+            if (!dateInput.value) {
+                alert("Please select a celebration date.");
+                dateInput.focus();
+                return;
+            }
+            const amount = parseFloat(document.getElementById('selectedAmount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid celebration sponsorship amount (minimum ₹100).");
+                document.getElementById('customCelebrationAmount').focus();
+                return;
+            }
+            if (!nameInput.value.trim()) {
+                alert("Please enter your full name.");
+                nameInput.focus();
+                return;
+            }
+            if (!emailInput.value.trim()) {
+                alert("Please enter your email address.");
+                emailInput.focus();
+                return;
+            }
+            if (!phoneRawInput || !phoneRawInput.value.trim()) {
+                alert("Please enter your 10-digit phone / WhatsApp number.");
+                if (phoneRawInput) phoneRawInput.focus();
+                return;
+            }
+            if (phoneRawInput.value.trim().length !== 10) {
+                alert("Phone number is locked to exactly 10 digits. Please enter all 10 digits.");
+                phoneRawInput.focus();
+                return;
+            }
+            updateFullPhone();
+
+            if (passInput && !passInput.value.trim()) {
+                alert("Please create a password for your account.");
+                passInput.focus();
+                return;
+            }
+
+            const occasion = document.getElementById('selectedOccasion').value;
+            const celebrantName = celebrant.value.trim();
+
+            document.getElementById('gwDisplayAmount').textContent = '₹' + Number(amount).toLocaleString('en-IN');
+            document.getElementById('gwDisplayOccasion').textContent = `${occasion} • Celebration Sponsorship`;
+            document.getElementById('gwDisplayCelebrant').textContent = `For: ${celebrantName}`;
+
+            // Generate dynamic QR with clone repo's exact UPI: namanmtj2005-2@okicici
+            const upiData = `upi://pay?pa=namanmtj2005-2@okicici&pn=Naman%20Vyas&am=${amount}&cu=INR`;
+            document.getElementById('celebDynamicQr').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiData)}`;
+
+            document.getElementById('celebrateWizardRow').classList.add('d-none');
+            document.getElementById('celebration-payment-gateway').style.display = 'flex';
+            window.scrollTo({ top: 100, behavior: 'smooth' });
+
+            startCelebCountdown();
+        }
+
+        function submitCelebrationWithUtr() {
+            const utr = document.getElementById('celeb_upi_utr_input').value.trim();
+            if (utr) {
+                document.getElementById('celebrate_payment_method').value = `UPI QR Code (UTR: ${utr})`;
+            }
+            processCelebrationPayment('upi');
+        }
+
+        function cancelCelebrationPayment() {
+            if (celebCountdownInterval) clearInterval(celebCountdownInterval);
+
+            document.getElementById('celebration-payment-gateway').style.display = 'none';
+            document.getElementById('celeb-otp-verification').style.display = 'none';
+            document.getElementById('celebrateWizardRow').classList.remove('d-none');
+            window.scrollTo({ top: 100, behavior: 'smooth' });
+        }
+
+        function onCelebTabSwitch(tabName) {
+            // tab switched
+        }
+
+        function startCelebCountdown() {
+            let duration = 299;
+            const timerEl = document.getElementById('celebUpiTimer');
+            if (celebCountdownInterval) clearInterval(celebCountdownInterval);
+
+            celebCountdownInterval = setInterval(() => {
+                const minutes = Math.floor(duration / 60);
+                const seconds = duration % 60;
+                if (timerEl) {
+                    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+                if (--duration < 0) {
+                    clearInterval(celebCountdownInterval);
+                }
+            }, 1000);
+        }
+
+        function processCelebrationPayment(method) {
+            if (celebCountdownInterval) clearInterval(celebCountdownInterval);
+
+            let methodStr = 'UPI QR Code (namanmtj2005-2@okicici)';
+            const utrEl = document.getElementById('celeb_upi_utr_input');
+            if (utrEl && utrEl.value.trim()) {
+                methodStr = `UPI QR Code (UTR: ${utrEl.value.trim()})`;
+            } else if (method === 'card') {
+                methodStr = 'Credit/Debit Card';
+            } else if (method === 'netbanking') {
+                methodStr = 'Net Banking';
+            } else if (method === 'neft') {
+                methodStr = 'NEFT/RTGS';
+            }
+
+            document.getElementById('celebrate_payment_method').value = methodStr;
+            const overlay = document.getElementById('celeb-processing-overlay');
+            overlay.style.display = 'flex';
+            document.getElementById('celebProcessingTitle').innerText = 'Confirming Celebration Booking...';
+
+            setTimeout(() => {
+                document.getElementById('celebrateForm').submit();
+            }, 800);
+        }
+
+        function verifyCelebrationOTP() {
+            const btn = document.querySelector('#celeb-otp-verification button');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Verifying & Confirming Proposal...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('celebrateForm').submit();
+            }, 800);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initPhoneFromDonor();
+            updateSummary();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

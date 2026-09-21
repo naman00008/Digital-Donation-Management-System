@@ -3,31 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You - RayOfTrust</title>
+    <title>Donation Successful - RayOfTrust</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .success-card {
+            max-width: 680px;
+            margin: 40px auto;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            background: white;
+            overflow: hidden;
+        }
+        .header-bg {
+            background: linear-gradient(135deg, #198754, #20c997);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .qr-card {
+            border: 2px dashed #198754;
+            border-radius: 16px;
+            padding: 16px;
+            background: #f8fafc;
+            display: inline-block;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="/">RayOfTrust</a>
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-hands-holding-heart me-2"></i>RayOfTrust</a>
             <div class="d-flex">
-                <a href="/donor" class="btn btn-outline-light btn-sm me-2">Donor Portal</a>
-                <a href="/admin" class="btn btn-outline-light btn-sm">Admin</a>
+                <a href="/donor" class="btn btn-light btn-sm fw-bold me-2"><i class="fa-solid fa-user me-1"></i> Donor Portal</a>
+                <a href="/" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-house me-1"></i> Home</a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-5 text-center">
-        <div class="card shadow border-0 py-5">
-            <div class="card-body">
-                <h1 class="display-1 text-success mb-3">✅</h1>
-                <h2 class="fw-bold">Thank You for Your Donation!</h2>
-                <p class="lead text-muted">Your generosity makes a real difference.</p>
-                <a href="/donor" class="btn btn-primary btn-lg mt-3">View Your Impact Tracker</a>
-                <a href="/" class="btn btn-outline-secondary btn-lg mt-3 ms-2">Back to Home</a>
+    <div class="container my-5">
+        <div class="success-card">
+            <!-- Header Banner -->
+            {% if donation and donation.status.startswith('Pending') %}
+            <div class="header-bg" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white text-warning rounded-circle mb-3 shadow" style="width: 70px; height: 70px;">
+                    <i class="fa-solid fa-clock-rotate-left fs-2"></i>
+                </div>
+                <h2 class="fw-bold mb-1">Donation Submitted for Verification!</h2>
+                <p class="mb-0 opacity-90">Your transaction reference has been logged and is undergoing bank reconciliation.</p>
+            </div>
+            {% else %}
+            <div class="header-bg">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white text-success rounded-circle mb-3 shadow" style="width: 70px; height: 70px;">
+                    <i class="fa-solid fa-check fs-2"></i>
+                </div>
+                <h2 class="fw-bold mb-1">Donation Received Successfully!</h2>
+                <p class="mb-0 opacity-90">Thank you for bringing hope and joy to our shelter children.</p>
+            </div>
+            {% endif %}
+
+            <div class="p-4 p-md-5">
+                {% if donation %}
+                {% if donation.status.startswith('Pending') %}
+                <div class="alert alert-warning border-warning d-flex align-items-start gap-2 mb-4">
+                    <i class="fa-solid fa-circle-exclamation fs-5 text-warning flex-shrink-0 mt-1"></i>
+                    <div class="small">
+                        <strong>Bank Reconciliation in Progress:</strong> Your reference number is being matched against the NGO's bank account credit entries. Your 80G tax exemption receipt will update to <em>Verified</em> once cleared by our accounts team.
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Donation Summary Box -->
+                <div class="bg-light p-4 rounded-4 mb-4 border">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">Receipt Number</span>
+                        <strong class="text-dark">#ROT-80G-{{ 1000 + donation.id }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">Donor Name</span>
+                        <strong class="text-dark">{{ donation.donor_name }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">Campaign / Purpose</span>
+                        <span class="badge bg-primary px-3 py-2 fs-6">{{ donation.purpose }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted small">Date & Status</span>
+                        <span class="text-dark">{{ donation.date }} • <span class="badge {% if donation.status.startswith('Pending') %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ donation.status }}</span></span>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5">Total Contributed:</span>
+                        <span class="fs-3 fw-bold text-success">₹{{ "{:,.0f}".format(donation.amount) }}</span>
+                    </div>
+                </div>
+
+                <!-- Official 80G Verification QR Code Box -->
+                <div class="text-center mb-4">
+                    <div class="qr-card shadow-sm mb-2">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ url_for('generate_receipt', donation_id=donation.id, _external=True) }}" 
+                             alt="Official 80G Receipt Verification QR Code" 
+                             style="width: 170px; height: 170px;" 
+                             class="img-fluid">
+                    </div>
+                    <div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-bold">
+                            <i class="fa-solid fa-qrcode me-1"></i> Scan to Verify 80G Tax Exemption
+                        </span>
+                        <small class="text-muted d-block mt-1">Section 80G • Indian Income Tax Act 1961</small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 mb-3">
+                    <a href="/receipt/{{ donation.id }}" target="_blank" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm">
+                        <i class="fa-solid fa-file-invoice me-2"></i> Download Official 80G Receipt (PDF)
+                    </a>
+                    <a href="/donor" class="btn btn-outline-success btn-lg fw-bold py-2">
+                        <i class="fa-solid fa-chart-pie me-2"></i> View in Your Donor Portal
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-4">Your donation has been registered. You can review your contributions and download 80G certificates anytime in your donor portal.</p>
+                    <a href="/donor" class="btn btn-primary btn-lg px-4 fw-bold">Go to Donor Portal</a>
+                </div>
+                {% endif %}
+
+                <p class="text-center text-muted small mt-4 mb-0">
+                    <i class="fa-solid fa-shield-halved text-success me-1"></i> RayOfTrust Child Welfare Foundation • Reg No: NGO/2026/DEL/7821
+                </p>
             </div>
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

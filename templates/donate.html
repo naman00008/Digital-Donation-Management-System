@@ -7,8 +7,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for Industry Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
-        body { background-color: #f4f6f9; }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .checkout-container { max-width: 950px; margin: 40px auto; }
         
         /* Stunning Razorpay-style Gateway Layout */
@@ -59,55 +61,127 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-hands-holding-child me-2"></i>RayOfTrust</a>
-            <div class="d-flex">
-                <a href="/donor" class="btn btn-light btn-sm fw-bold me-2">Donor Portal</a>
-                <a href="/admin" class="btn btn-outline-light btn-sm">Admin</a>
+            <div class="d-flex align-items-center">
+                <a href="/celebrate" class="btn btn-outline-light btn-sm me-2"><i class="fa-solid fa-cake-candles me-1"></i> Celebrate with Kids</a>
+                <a href="/campaigns" class="btn btn-outline-light btn-sm me-2"><i class="fa-solid fa-bullhorn me-1"></i> Campaigns</a>
+                <a href="/donor" class="btn btn-light btn-sm fw-bold me-2"><i class="fa-solid fa-user me-1"></i> Donor Portal</a>
+                {% if donor %}
+                <a href="/logout?next=donate" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout ({{ donor.name }})</a>
+                {% else %}
+                <a href="/admin" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-lock me-1"></i> Admin</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
     <div class="checkout-container px-3">
+        
         <!-- Step 1: Donation Details (Redesigned) -->
         <div class="card shadow border-0 rounded-4 mb-4" id="donation-details">
             <div class="card-header bg-white text-center py-5 border-0">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2">
+                    🔒 100% SECURE & 80G TAX EXEMPT
+                </span>
                 <h2 class="fw-bold text-dark mb-2">Complete Your Donation</h2>
                 <p class="text-muted fs-5">Your secure contribution is 80G tax-exempt.</p>
             </div>
+            
             <div class="card-body p-4 p-md-5 pt-0">
-                <form id="donationForm" action="/create-checkout-session" method="POST">
+                {% if donor %}
+                <div class="alert alert-success d-flex align-items-center justify-content-between mb-4 p-3 rounded-3 shadow-sm border-0">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-circle-check fs-4 me-3 text-success"></i>
+                        <div>
+                            <strong class="d-block text-dark">Logged in as {{ donor.name }}</strong>
+                            <small class="text-muted">Email: {{ donor.email }} • This donation will be automatically linked to your Donor Portal.</small>
+                        </div>
+                    </div>
+                    <a href="/logout?next=donate" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold ms-3 text-nowrap shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket me-1"></i> Log Out
+                    </a>
+                </div>
+                {% endif %}
+
+                <form id="donationForm" action="/public_add_donation" method="POST">
                     <input type="hidden" name="payment_method" id="payment_method" value="Online">
+                    
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Full Name</label>
-                            <input type="text" class="form-control form-control-custom" name="donor_name" placeholder="John Doe" required>
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-custom" name="donor_name" id="donor_name" value="{{ donor.name if donor else '' }}" placeholder="John Doe" required>
                         </div>
                         <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Email Address</label>
-                            <input type="email" class="form-control form-control-custom" name="donor_email" placeholder="john@example.com" required>
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control form-control-custom" name="donor_email" id="donor_email" value="{{ donor.email if donor else '' }}" placeholder="john@example.com" required>
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Phone Number (Optional)</label>
-                            <input type="text" class="form-control form-control-custom" name="donor_phone" placeholder="+91">
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Create a Password (Optional)</label>
-                            <input type="password" class="form-control form-control-custom" name="donor_password" placeholder="To track your impact">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Donation Amount</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 fw-bold fs-5 px-4 text-muted">₹</span>
-                                <input type="number" class="form-control form-control-custom border-start-0 ps-0 fs-5 fw-bold" name="amount" placeholder="5000" min="10" required>
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Phone / WhatsApp Number</label>
+                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <select class="form-select bg-light fw-bold text-dark border-end-0" id="donateCountryCode" style="max-width: 140px;" onchange="updateDonateFullPhone()">
+                                    <option value="+91" selected>🇮🇳 +91 (IN)</option>
+                                    <option value="+114">🌐 +114</option>
+                                    <option value="+1">🇺🇸 +1 (US)</option>
+                                    <option value="+44">🇬🇧 +44 (UK)</option>
+                                    <option value="+971">🇦🇪 +971 (AE)</option>
+                                    <option value="+61">🇦🇺 +61 (AU)</option>
+                                    <option value="+65">🇸🇬 +65 (SG)</option>
+                                    <option value="+966">🇸🇦 +966 (SA)</option>
+                                    <option value="+49">🇩🇪 +49 (DE)</option>
+                                    <option value="+33">🇫🇷 +33 (FR)</option>
+                                    <option value="+81">🇯🇵 +81 (JP)</option>
+                                    <option value="+977">🇳🇵 +977 (NP)</option>
+                                    <option value="+880">🇧🇩 +880 (BD)</option>
+                                    <option value="+94">🇱🇰 +94 (LK)</option>
+                                    <option value="+974">🇶🇦 +974 (QA)</option>
+                                    <option value="+968">🇴🇲 +968 (OM)</option>
+                                    <option value="+965">🇰🇼 +965 (KW)</option>
+                                    <option value="+27">🇿🇦 +27 (ZA)</option>
+                                    <option value="+60">🇲🇾 +60 (MY)</option>
+                                    <option value="+64">🇳🇿 +64 (NZ)</option>
+                                </select>
+                                <input type="tel" class="form-control form-control-custom" id="donatePhoneRaw" maxlength="10" minlength="10" placeholder="9876543210 (10 digits)" onkeydown="enforceDigitOnly(event)" oninput="handleDonatePhoneInput(this)">
+                            </div>
+                            <input type="hidden" name="donor_phone" id="donor_phone" value="{{ donor.phone if donor else '' }}">
+                            <div class="d-flex justify-content-between align-items-center mt-1 px-1">
+                                <small class="text-muted small" id="donatePhoneLockStatus"><i class="fa-solid fa-lock me-1"></i> Locked to 10 digits</small>
+                                <small class="fw-bold" id="donatePhoneDigitCount" style="color: #6c757d;">0/10</small>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-5">
-                            <label class="form-label fw-bold text-secondary small text-uppercase">Select Campaign</label>
-                            <select class="form-select form-control-custom" name="purpose" required>
-                                <option value="General Fund">General Fund (Greatest Need)</option>
+                        {% if not donor %}
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Create Account Password (Optional)</label>
+                            <input type="password" class="form-control form-control-custom" name="donor_password" placeholder="Password for Donor Portal access">
+                        </div>
+                        {% else %}
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Account Status</label>
+                            <input type="text" class="form-control form-control-custom bg-light" value="Authenticated Donor Account" readonly>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Donation Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 fw-bold fs-5 px-4 text-muted">₹</span>
+                                <input type="number" class="form-control form-control-custom border-start-0 ps-0 fs-5 fw-bold" name="amount" id="donation_amount" placeholder="2500" value="2500" min="10" required>
+                            </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="setPreset(500)">₹500</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="setPreset(1000)">₹1,000</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="setPreset(2500)">₹2,500</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" onclick="setPreset(5000)">₹5,000</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Select Campaign <span class="text-danger">*</span></label>
+                            <select class="form-select form-control-custom" name="purpose" id="donation_purpose" required>
+                                <option value="General Fund" selected>General Fund (Greatest Need)</option>
                                 <option value="Education Drive">Education Drive</option>
                                 <option value="Winter Clothes">Winter Clothes Distribution</option>
                                 <option value="Medical Relief">Medical Relief Fund</option>
@@ -120,13 +194,562 @@
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-5 shadow">Proceed to Official Stripe Checkout <i class="fa-solid fa-lock ms-2"></i></button>
+
+                    <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold fs-5 shadow mt-2" onclick="showPayment()">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </button>
                 </form>
             </div>
         </div>
+
+        <!-- Step 2: Industry-Standard Payment Gateway (Razorpay Style) -->
+        <div id="payment-gateway" class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-4 payment-sidebar">
+                <div class="p-4 p-md-5 border-bottom bg-white">
+                    <p class="text-muted mb-1 small fw-bold text-uppercase">Amount to Pay</p>
+                    <h2 class="fw-bold text-dark mb-0">₹<span id="display-amount">2,500</span></h2>
+                    <small class="text-muted" id="display-purpose">General Fund</small>
+                </div>
+                <div class="nav flex-column nav-pills flex-grow-1" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-upi" type="button" onclick="onTabSwitch('upi')">
+                        <i class="fa-solid fa-qrcode text-success"></i> UPI / QR Code
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-card" type="button" onclick="onTabSwitch('card')">
+                        <i class="fa-regular fa-credit-card text-primary"></i> Credit / Debit Card
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-netbanking" type="button" onclick="onTabSwitch('netbanking')">
+                        <i class="fa-solid fa-building-columns text-warning"></i> Net Banking
+                    </button>
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-neft" type="button" onclick="onTabSwitch('neft')">
+                        <i class="fa-solid fa-money-bill-transfer text-secondary"></i> NEFT / RTGS
+                    </button>
+                </div>
+                <div class="p-4 text-center mt-auto border-top bg-light">
+                    <small class="text-success fw-bold"><i class="fa-solid fa-lock"></i> 256-bit SSL Bank Secured</small>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="col-md-8 payment-content bg-white">
+                
+                <!-- Processing Overlay -->
+                <div id="processing-overlay">
+                    <div class="bank-loader"></div>
+                    <h4 class="fw-bold text-dark">Processing Payment...</h4>
+                    <p class="text-muted">Please do not press back or refresh your browser.</p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-dark mb-0">Select Payment Method</h4>
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="cancelPayment()">Cancel</button>
+                </div>
+
+                <div class="tab-content">
+                    
+                    <!-- UPI Tab -->
+                    <div class="tab-pane fade show active" id="tab-upi">
+                        <div class="text-center mb-3">
+                            <p class="text-muted mb-2">Scan the QR code with any UPI app (GPay, PhonePe, Paytm, BHIM)</p>
+                            <div class="d-inline-block p-2 bg-white rounded-4 shadow-sm border border-2 border-primary mb-2">
+                                <img id="dynamic-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=namanmtj2005-2@okicici&pn=Naman%20Vyas&am=2500&cu=INR" alt="Live QR" class="rounded" style="width: 170px; height: 170px;">
+                            </div>
+                            <div class="mb-3">
+                                <span class="badge bg-light text-primary border font-monospace px-3 py-2 fs-6">namanmtj2005-2@okicici</span>
+                            </div>
+                        </div>
+
+                        <!-- Option A: Automated Gateway Popup -->
+                        <div class="mb-3 p-3 bg-light rounded-3 border text-center">
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm" onclick="payWithRazorpay('upi')">
+                                <i class="fa-solid fa-bolt me-2"></i> Pay with Razorpay Gateway
+                            </button>
+                            <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+                                <i class="fa-solid fa-shield-halved text-success me-1"></i> Bank-Grade Verification • Instant 80G Receipt Confirmation
+                            </small>
+                        </div>
+
+                        <!-- Option B: Direct Scan & UTR Entry -->
+                        <div class="p-3 bg-white rounded-3 border text-start">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                <i class="fa-solid fa-receipt text-primary me-1"></i> Already paid directly using your UPI app?
+                            </label>
+                            <p class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                Enter your 12-digit UPI UTR / Transaction Reference ID from GPay/PhonePe to submit for bank verification:
+                            </p>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control font-monospace" id="upi_utr_input" placeholder="e.g. 423589012345 (12 digits)" maxlength="25">
+                                <button class="btn btn-outline-primary fw-bold px-3" type="button" onclick="submitDirectUtr()">
+                                    Submit UTR
+                                </button>
+                            </div>
+                            <small class="text-muted d-block" style="font-size: 0.72rem;">
+                                <i class="fa-solid fa-clock-rotate-left text-warning me-1"></i> Submissions are logged as <strong>Pending Verification</strong> until reconciled with bank statement.
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Tab -->
+                    <div class="tab-pane fade" id="tab-card">
+                        <div class="p-4 bg-light rounded-4 text-center border mb-3">
+                            <div class="d-flex justify-content-center gap-3 fs-2 text-secondary mb-3">
+                                <i class="fa-brands fa-cc-visa text-primary"></i>
+                                <i class="fa-brands fa-cc-mastercard text-danger"></i>
+                                <i class="fa-solid fa-credit-card text-success"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Debit / Credit Cards & RuPay</h5>
+                            <p class="text-muted small mb-4">Cards are processed securely via RBI-compliant gateway with 3D-Secure Bank OTP.</p>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm" onclick="payWithRazorpay('card')">
+                                <i class="fa-solid fa-lock me-2"></i> Pay with Card via Gateway
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Net Banking Tab -->
+                    <div class="tab-pane fade" id="tab-netbanking">
+                        <div class="p-4 bg-light rounded-4 text-center border mb-3">
+                            <i class="fa-solid fa-building-columns text-primary fs-1 mb-3"></i>
+                            <h5 class="fw-bold text-dark mb-2">All Major Indian Banks</h5>
+                            <p class="text-muted small mb-4">SBI, HDFC, ICICI, Axis, Kotak, PNB & 50+ other supported net banking portals.</p>
+                            <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm" onclick="payWithRazorpay('netbanking')">
+                                <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Proceed to Bank via Gateway
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- NEFT Tab -->
+                    <div class="tab-pane fade" id="tab-neft">
+                        <div class="alert alert-primary bg-light border-primary border-start border-4 text-start mb-4">
+                            <strong>High-Value Donation:</strong> Direct NEFT/RTGS wire transfer to Ray of Trust NGO.
+                        </div>
+                        <div class="bg-light border rounded-3 p-4 text-start mb-4">
+                            <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Beneficiary Name</div>
+                                <div class="col-sm-7 fw-bold text-dark">A Ray Of Hope Foundation</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">Account Number</div>
+                                <div class="col-sm-7 fw-bold text-dark fs-5 tracking-widest">999888777666555</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-5 text-muted small text-uppercase fw-bold">IFSC Code</div>
+                                <div class="col-sm-7 fw-bold text-dark">HDFC0001234</div>
+                            </div>
+                        </div>
+                        <div class="mb-4 text-start">
+                            <label class="form-label small fw-bold text-muted text-uppercase">NEFT / RTGS Reference Number</label>
+                            <input type="text" class="form-control form-control-custom" id="neft_utr_input" placeholder="Enter bank UTR / Reference ID after transfer">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow" onclick="submitNeftUtr()">Submit Transfer for Verification</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Sandbox Simulation Modal (When in Test Mode) -->
+        <div class="modal fade" id="sandboxGatewayModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+                <div class="modal-content rounded-4 border-0 shadow-lg">
+                    <div class="modal-header bg-dark text-white p-3 border-0">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-warning"></i>
+                            <h6 class="modal-title fw-bold mb-0">Razorpay Gateway (Test Sandbox)</h6>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <div class="mb-3">
+                            <div class="spinner-border text-primary mb-2" role="status" id="sandboxSpinner" style="display: none;"></div>
+                            <h5 class="fw-bold text-dark mb-1" id="sandboxAmountText">₹0</h5>
+                            <p class="text-muted small mb-0" id="sandboxPurposeText">Donation</p>
+                        </div>
+                        <div class="alert alert-light border text-start small mb-4">
+                            <i class="fa-solid fa-circle-info text-primary me-1"></i>
+                            <strong>Simulated Gateway Flow:</strong> You can test authentic payment verification or cancellation below. Add live keys to <code>.env</code> for real production checkout.
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success py-2 fw-bold" onclick="simulateGatewayResponse(true)">
+                                <i class="fa-solid fa-check me-1"></i> Simulate Payment Success
+                            </button>
+                            <button type="button" class="btn btn-outline-danger py-2" onclick="simulateGatewayResponse(false)">
+                                <i class="fa-solid fa-xmark me-1"></i> Cancel / Fail Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentOrderData = null;
+
+        function setPreset(val) {
+            document.getElementById('donation_amount').value = val;
+        }
+
+        function showPayment() {
+            const form = document.getElementById('donationForm');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const rawPhone = document.getElementById('donatePhoneRaw').value.trim();
+            if (rawPhone && rawPhone.length !== 10) {
+                alert("Phone number must be locked to exactly 10 digits.");
+                document.getElementById('donatePhoneRaw').focus();
+                return;
+            }
+            updateDonateFullPhone();
+            
+            // Switch UI
+            document.getElementById('donation-details').style.display = 'none';
+            document.getElementById('payment-gateway').style.display = 'flex';
+            
+            // Set Amount
+            const amount = document.querySelector('input[name="amount"]').value;
+            const purpose = document.getElementById('donation_purpose').value;
+            document.getElementById('display-amount').innerText = Number(amount).toLocaleString('en-IN');
+            document.getElementById('display-purpose').innerText = purpose;
+
+            // Generate Dynamic QR Code
+            const dynamicQrImg = document.getElementById('dynamic-qr');
+            if (dynamicQrImg) {
+                const upiData = `upi://pay?pa=namanmtj2005-2@okicici&pn=Ray%20Of%20Trust%20NGO&am=${amount}&cu=INR`;
+                dynamicQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiData)}`;
+            }
+        }
+
+        function onTabSwitch(tabName) {
+            // No auto-accept timers
+        }
+
+        async function payWithRazorpay(methodHint) {
+            const amount = document.querySelector('input[name="amount"]').value;
+            const purpose = document.getElementById('donation_purpose').value;
+            const donorName = document.querySelector('input[name="donor_name"]').value;
+            const donorEmail = document.querySelector('input[name="donor_email"]').value;
+            const donorPhone = document.querySelector('input[name="donor_phone"]').value;
+            const donorPassword = document.querySelector('input[name="donor_password"]')?.value || '';
+
+            const overlay = document.getElementById('processing-overlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('h4').innerText = 'Initializing Secure Gateway...';
+
+            try {
+                const orderRes = await fetch('/api/create_payment_order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        amount: amount,
+                        purpose: purpose,
+                        donor_name: donorName,
+                        donor_email: donorEmail,
+                        donor_phone: donorPhone
+                    })
+                });
+                const order = await orderRes.json();
+                overlay.style.display = 'none';
+
+                if (!order.success) {
+                    alert("Gateway initialization failed: " + (order.error || "Unknown error"));
+                    return;
+                }
+
+                currentOrderData = {
+                    order: order,
+                    donorName: donorName,
+                    donorEmail: donorEmail,
+                    donorPhone: donorPhone,
+                    donorPassword: donorPassword,
+                    amount: amount,
+                    purpose: purpose
+                };
+
+                // If real keys are present and not sandbox
+                if (!order.sandbox && window.Razorpay) {
+                    const options = {
+                        "key": order.key_id,
+                        "amount": order.amount,
+                        "currency": order.currency,
+                        "name": "Ray of Trust NGO",
+                        "description": purpose,
+                        "order_id": order.order_id,
+                        "handler": async function (response) {
+                            await verifyAndComplete(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature);
+                        },
+                        "prefill": {
+                            "name": donorName,
+                            "email": donorEmail,
+                            "contact": donorPhone
+                        },
+                        "theme": {
+                            "color": "#ff6b6b"
+                        },
+                        "modal": {
+                            "ondismiss": function() {
+                                alert("Payment cancelled. No charge was made and no donation was recorded.");
+                            }
+                        }
+                    };
+                    const rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function(resp) {
+                        alert("Payment Failed: " + resp.error.description);
+                    });
+                    rzp.open();
+                } else {
+                    // Sandbox test modal
+                    document.getElementById('sandboxAmountText').innerText = `₹${Number(amount).toLocaleString('en-IN')}`;
+                    document.getElementById('sandboxPurposeText').innerText = purpose;
+                    const modal = new bootstrap.Modal(document.getElementById('sandboxGatewayModal'));
+                    modal.show();
+                }
+            } catch (err) {
+                overlay.style.display = 'none';
+                alert("Failed to connect to gateway: " + err.message);
+            }
+        }
+
+        async function simulateGatewayResponse(isSuccess) {
+            const modalEl = document.getElementById('sandboxGatewayModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            if (!isSuccess) {
+                alert("Payment was cancelled or failed. No transaction was recorded.");
+                return;
+            }
+
+            if (!currentOrderData) return;
+
+            const fakePaymentId = `pay_sim_${Date.now()}`;
+            const fakeOrderId = currentOrderData.order.order_id;
+            const fakeSignature = `sig_sim_${Date.now()}`;
+
+            await verifyAndComplete(fakePaymentId, fakeOrderId, fakeSignature, true);
+        }
+
+        async function verifyAndComplete(paymentId, orderId, signature, isSandbox = false) {
+            const overlay = document.getElementById('processing-overlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('h4').innerText = 'Verifying Bank Confirmation...';
+
+            try {
+                const res = await fetch('/api/verify_payment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        razorpay_payment_id: paymentId,
+                        razorpay_order_id: orderId,
+                        razorpay_signature: signature,
+                        sandbox_verified: isSandbox,
+                        donor_name: currentOrderData.donorName,
+                        donor_email: currentOrderData.donorEmail,
+                        donor_phone: currentOrderData.donorPhone,
+                        donor_password: currentOrderData.donorPassword,
+                        amount: currentOrderData.amount,
+                        purpose: currentOrderData.purpose
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    overlay.style.display = 'none';
+                    alert("Payment Verification Failed: " + (data.error || "Unknown error"));
+                }
+            } catch (err) {
+                overlay.style.display = 'none';
+                alert("Verification error: " + err.message);
+            }
+        }
+
+        async function submitDirectUtr() {
+            const utr = document.getElementById('upi_utr_input').value.trim();
+            if (!utr || utr.length < 6) {
+                alert("Please enter a valid 12-digit UPI UTR / Transaction Reference ID.");
+                return;
+            }
+
+            const amount = document.querySelector('input[name="amount"]').value;
+            const purpose = document.getElementById('donation_purpose').value;
+            const donorName = document.querySelector('input[name="donor_name"]').value;
+            const donorEmail = document.querySelector('input[name="donor_email"]').value;
+            const donorPhone = document.querySelector('input[name="donor_phone"]').value;
+            const donorPassword = document.querySelector('input[name="donor_password"]')?.value || '';
+
+            const overlay = document.getElementById('processing-overlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('h4').innerText = 'Submitting UTR for Bank Verification...';
+
+            try {
+                const res = await fetch('/api/submit_upi_utr', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        utr_number: utr,
+                        amount: amount,
+                        purpose: purpose,
+                        donor_name: donorName,
+                        donor_email: donorEmail,
+                        donor_phone: donorPhone,
+                        donor_password: donorPassword,
+                        payment_method: 'Direct UPI QR'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    overlay.style.display = 'none';
+                    alert("Submission error: " + (data.error || "Failed to submit"));
+                }
+            } catch (err) {
+                overlay.style.display = 'none';
+                alert("Submission network error: " + err.message);
+            }
+        }
+
+        async function submitNeftUtr() {
+            const utr = document.getElementById('neft_utr_input').value.trim();
+            if (!utr || utr.length < 6) {
+                alert("Please enter your NEFT / RTGS Reference Number.");
+                return;
+            }
+
+            const amount = document.querySelector('input[name="amount"]').value;
+            const purpose = document.getElementById('donation_purpose').value;
+            const donorName = document.querySelector('input[name="donor_name"]').value;
+            const donorEmail = document.querySelector('input[name="donor_email"]').value;
+            const donorPhone = document.querySelector('input[name="donor_phone"]').value;
+            const donorPassword = document.querySelector('input[name="donor_password"]')?.value || '';
+
+            const overlay = document.getElementById('processing-overlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('h4').innerText = 'Submitting Transfer Reference...';
+
+            try {
+                const res = await fetch('/api/submit_upi_utr', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        utr_number: utr,
+                        amount: amount,
+                        purpose: purpose,
+                        donor_name: donorName,
+                        donor_email: donorEmail,
+                        donor_phone: donorPhone,
+                        donor_password: donorPassword,
+                        payment_method: 'NEFT / Wire Transfer'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    overlay.style.display = 'none';
+                    alert("Submission error: " + (data.error || "Failed to submit"));
+                }
+            } catch (err) {
+                overlay.style.display = 'none';
+                alert("Submission network error: " + err.message);
+            }
+        }
+
+        function cancelPayment() {
+            document.getElementById('payment-gateway').style.display = 'none';
+            document.getElementById('donation-details').style.display = 'block';
+        }
+
+        function enforceDigitOnly(e) {
+            if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                return;
+            }
+            if (!/^[0-9]$/.test(e.key)) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.target.value.length >= 10 && e.target.selectionStart === e.target.selectionEnd) {
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        function handleDonatePhoneInput(el) {
+            el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+            const count = el.value.length;
+            const countEl = document.getElementById('donatePhoneDigitCount');
+            const statusEl = document.getElementById('donatePhoneLockStatus');
+
+            if (countEl) countEl.textContent = `${count}/10`;
+
+            if (statusEl) {
+                if (count === 10) {
+                    statusEl.innerHTML = '<i class="fa-solid fa-circle-check text-success me-1"></i> Locked & Verified (10 digits)';
+                    statusEl.className = 'text-success small fw-bold';
+                    if (countEl) countEl.style.color = '#198754';
+                } else {
+                    statusEl.innerHTML = '<i class="fa-solid fa-lock text-danger me-1"></i> Must be exactly 10 digits';
+                    statusEl.className = 'text-danger small';
+                    if (countEl) countEl.style.color = '#dc3545';
+                }
+            }
+            updateDonateFullPhone();
+        }
+
+        function updateDonateFullPhone() {
+            const codeEl = document.getElementById('donateCountryCode');
+            const code = codeEl ? codeEl.value : '+91';
+            const rawEl = document.getElementById('donatePhoneRaw');
+            const raw = rawEl ? rawEl.value.trim() : '';
+            const fullInput = document.getElementById('donor_phone');
+            if (fullInput) {
+                fullInput.value = raw ? `${code} ${raw}` : '';
+            }
+        }
+
+        function initDonatePhone() {
+            const fullInput = document.getElementById('donor_phone');
+            if (!fullInput) return;
+            const fullPhone = fullInput.value.trim();
+            if (!fullPhone) return;
+
+            const codes = ['+114', '+971', '+966', '+977', '+880', '+91', '+44', '+61', '+65', '+49', '+33', '+81', '+94', '+974', '+968', '+965', '+27', '+60', '+64', '+1'];
+            let matchedCode = '+91';
+            let digits = fullPhone.replace(/\D/g, '');
+
+            for (let c of codes) {
+                if (fullPhone.startsWith(c)) {
+                    matchedCode = c;
+                    const codeDigits = c.replace(/\D/g, '');
+                    if (digits.startsWith(codeDigits)) {
+                        digits = digits.slice(codeDigits.length);
+                    }
+                    break;
+                }
+            }
+
+            const sel = document.getElementById('donateCountryCode');
+            if (sel) sel.value = matchedCode;
+            const rawInput = document.getElementById('donatePhoneRaw');
+            if (rawInput) {
+                rawInput.value = digits.slice(0, 10);
+                handleDonatePhoneInput(rawInput);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDonatePhone();
+        });
+    </script>
 </body>
 </html>
