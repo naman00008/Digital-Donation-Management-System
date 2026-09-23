@@ -131,11 +131,159 @@
             </div>
         </div>
 
-        <div class="row">
-            <!-- Add Donation Form & Widgets -->
-            <div class="col-md-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white fw-bold">Log New Donation</div>
+        
+    <!-- Zone 1: Command Center Overview -->
+    <h5 class="fw-bold text-muted mb-3 mt-4 text-uppercase" style="letter-spacing: 1px;"><i class="fa-solid fa-chart-pie me-2"></i> Command Center Overview</h5>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <!-- Chart -->
+                <div class="card shadow-sm mb-4 h-100 border-0">
+                    <div class="card-header bg-white fw-bold">Donation Analytics</div>
+                    <div class="card-body">
+                        <canvas id="donationChart" height="100"></canvas>
+                    </div>
+                </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Donor Leaderboard Widget -->
+                <div class="card shadow-sm mb-4 h-100 border-0">
+                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-ranking-star text-primary me-2"></i>Top Donors</span>
+                    </div>
+                    <div class="card-body p-0 d-flex flex-column">
+                        <ul class="nav nav-tabs nav-fill bg-light pt-1 border-bottom-0" id="leaderboardTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-semibold text-dark py-2" id="alltime-tab" data-bs-toggle="tab" data-bs-target="#alltime" type="button" role="tab" style="font-size: 0.9rem;">All Time</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold text-muted py-2" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" style="font-size: 0.9rem;">This Month</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content flex-grow-1 position-relative" id="leaderboardTabContent" style="min-height:0;">
+                            <!-- All Time Tab (Real Data) -->
+                            <div class="tab-pane fade show active position-absolute w-100 h-100 custom-scroll" style="top: 0; left: 0; overflow-y: auto;" id="alltime" role="tabpanel">
+                                {% if top_donors %}
+                                    <ul class="list-group list-group-flush">
+                                        {% for td in top_donors %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                            <div class="d-flex align-items-center">
+                                                {% if loop.index == 1 %}
+                                                    <i class="fa-solid fa-medal text-warning fs-5 me-3" title="1st Place"></i>
+                                                {% elif loop.index == 2 %}
+                                                    <i class="fa-solid fa-medal text-secondary fs-5 me-3" title="2nd Place"></i>
+                                                {% elif loop.index == 3 %}
+                                                    <i class="fa-solid fa-medal fs-5 me-3" style="color: #cd7f32;" title="3rd Place"></i>
+                                                {% else %}
+                                                    <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">{{ loop.index }}</span>
+                                                {% endif %}
+                                                
+                                                <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">{{ td.donor_name }}</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-success" style="font-size: 0.95rem;">₹{{ "{:,.0f}".format(td.total_contributed) }}</div>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted text-center my-4 small">No donations yet.</p>
+                                {% endif %}
+                            </div>
+                            <!-- Monthly Tab (Simulated Data) -->
+                            <div class="tab-pane fade position-absolute w-100 h-100 custom-scroll" style="top: 0; left: 0; overflow-y: auto;" id="monthly" role="tabpanel">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-medal text-warning fs-5 me-3"></i>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Akshita</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-success" style="font-size: 0.95rem;">₹1,500</div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-medal text-secondary fs-5 me-3"></i>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Mike</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-success" style="font-size: 0.95rem;">₹500</div>
+                                        </div>
+                                    </li>
+                                
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-medal fs-5 me-3" style="color: #cd7f32;"></i>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Sarah</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹450</div></div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">4</span>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">John</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹300</div></div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">5</span>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Emma</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹250</div></div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">6</span>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">David</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹200</div></div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">7</span>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Sophia</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹150</div></div>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">8</span>
+                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Michael</div>
+                                        </div>
+                                        <div class="text-end"><div class="fw-bold text-success" style="font-size: 0.95rem;">₹100</div></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <!-- Unified Operations & Logs -->
+    <hr class="mb-4 mt-3">
+    <h5 class="fw-bold text-muted mb-4 text-uppercase" style="letter-spacing: 1px;"><i class="fa-solid fa-server text-primary me-2"></i> Unified Operations & Logs</h5>
+    
+    <div class="row mb-5">
+        <!-- Unified Forms (Left Column) -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4 h-100 bg-white">
+                <div class="card-header bg-light p-0 border-bottom">
+                    <ul class="nav nav-tabs nav-fill border-0" id="formTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold text-dark py-3 border-0 border-bottom border-3 border-success" id="log-donation-tab" data-bs-toggle="tab" data-bs-target="#log-donation" type="button" role="tab" onclick="document.getElementById('book-celebration-tab').classList.remove('border-danger', 'border-bottom', 'border-3'); this.classList.add('border-success', 'border-bottom', 'border-3');"><i class="fa-solid fa-hand-holding-dollar text-success me-1"></i> Log Donation</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-dark py-3 border-0" id="book-celebration-tab" data-bs-toggle="tab" data-bs-target="#book-celebration" type="button" role="tab" onclick="document.getElementById('log-donation-tab').classList.remove('border-success', 'border-bottom', 'border-3'); this.classList.add('border-danger', 'border-bottom', 'border-3');"><i class="fa-solid fa-cake-candles text-danger me-1"></i> Book Event</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content" id="formTabsContent">
+                        <div class="tab-pane fade show active p-3" id="log-donation" role="tabpanel">
+                            <div class="border-0 shadow-none mb-0">
+                    
                     <div class="card-body">
                         <form action="/add_donation" method="POST">
                             <div class="mb-3">
@@ -177,80 +325,10 @@
                         </form>
                     </div>
                 </div>
-                
-                <!-- Donor Leaderboard Widget -->
-                <div class="card shadow-sm mb-4 border-0">
-                    <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
-                        <span><i class="fa-solid fa-ranking-star text-primary me-2"></i>Top Donors</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="nav nav-tabs nav-fill bg-light pt-1 border-bottom-0" id="leaderboardTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active fw-semibold text-dark py-2" id="alltime-tab" data-bs-toggle="tab" data-bs-target="#alltime" type="button" role="tab" style="font-size: 0.9rem;">All Time</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold text-muted py-2" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab" style="font-size: 0.9rem;">This Month</button>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="leaderboardTabContent">
-                            <!-- All Time Tab (Real Data) -->
-                            <div class="tab-pane fade show active" id="alltime" role="tabpanel">
-                                {% if top_donors %}
-                                    <ul class="list-group list-group-flush">
-                                        {% for td in top_donors %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
-                                            <div class="d-flex align-items-center">
-                                                {% if loop.index == 1 %}
-                                                    <i class="fa-solid fa-medal text-warning fs-5 me-3" title="1st Place"></i>
-                                                {% elif loop.index == 2 %}
-                                                    <i class="fa-solid fa-medal text-secondary fs-5 me-3" title="2nd Place"></i>
-                                                {% elif loop.index == 3 %}
-                                                    <i class="fa-solid fa-medal fs-5 me-3" style="color: #cd7f32;" title="3rd Place"></i>
-                                                {% else %}
-                                                    <span class="text-muted fw-bold me-3 ms-1" style="width: 20px;">#{{ loop.index }}</span>
-                                                {% endif %}
-                                                
-                                                <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">{{ td.donor_name }}</div>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="fw-bold text-success" style="font-size: 0.95rem;">₹{{ "{:,.0f}".format(td.total_contributed) }}</div>
-                                            </div>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <p class="text-muted text-center my-4 small">No donations yet.</p>
-                                {% endif %}
-                            </div>
-                            <!-- Monthly Tab (Simulated Data) -->
-                            <div class="tab-pane fade" id="monthly" role="tabpanel">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fa-solid fa-medal text-warning fs-5 me-3"></i>
-                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Akshita</div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold text-success" style="font-size: 0.95rem;">₹1,500</div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 border-0 border-bottom">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fa-solid fa-medal text-secondary fs-5 me-3"></i>
-                                            <div class="fw-bold text-dark mb-0 text-capitalize" style="font-size: 0.95rem;">Mike</div>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold text-success" style="font-size: 0.95rem;">₹500</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- New Booking for Celebrations & Events Card -->
-                <div class="card shadow-sm mb-4 border-0" style="border-top: 4px solid #ff6b6b !important;">
+                        <div class="tab-pane fade p-3" id="book-celebration" role="tabpanel">
+                            <!-- New Booking for Celebrations & Events Card -->
+                <div class="border-0 shadow-none mb-0 border-0" style="border-top: 4px solid #ff6b6b !important;">
                     <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
                         <span class="text-dark"><i class="fa-solid fa-cake-candles text-danger me-2"></i>New Celebration Booking</span>
                         <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small">Events</span>
@@ -338,40 +416,46 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Dashboard Analytics & Table -->
-            <div class="col-md-8">
-                <!-- Chart -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white fw-bold">Donation Analytics</div>
-                    <div class="card-body">
-                        <canvas id="donationChart" height="100"></canvas>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Table -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
-                        <span>Recent Donations Master Log</span>
-                    </div>
-                    <div class="card-body p-0 table-responsive custom-scroll" style="max-height: 520px; overflow-y: auto;">
-                        <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.9rem;">
+            </div>
+        </div>
+
+        <!-- Unified Data Tables (Right Column) -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4 h-100 overflow-hidden">
+                <div class="card-header bg-dark p-0 border-bottom">
+                    <ul class="nav nav-tabs nav-fill border-0" id="tableTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold text-white py-3 border-0 rounded-0" style="background: rgba(255,255,255,0.1);" id="donations-log-tab" data-bs-toggle="tab" data-bs-target="#donations-log" type="button" role="tab" onclick="this.style.background='rgba(255,255,255,0.1)'; document.getElementById('celebrations-log-tab').style.background='transparent';"><i class="fa-solid fa-list-check text-success me-1"></i> Donations Master Log</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-white py-3 border-0 rounded-0" style="background: transparent;" id="celebrations-log-tab" data-bs-toggle="tab" data-bs-target="#celebrations-log" type="button" role="tab" onclick="this.style.background='rgba(255,255,255,0.1)'; document.getElementById('donations-log-tab').style.background='transparent';"><i class="fa-solid fa-calendar-check text-danger me-1"></i> Celebrations Master Log</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0 position-relative">
+                    <div class="tab-content h-100" id="tableTabsContent">
+                        <div class="tab-pane fade show active p-0 h-100" id="donations-log" role="tabpanel">
+                            <!-- Table -->
+                    <div class="table-responsive custom-scroll position-absolute w-100 h-100" style="top: 0; left: 0; overflow-y: auto;">
+                        <table class="table table-hover table-striped table-bordered align-middle mb-0" style="font-size: 0.9rem;">
                             <thead class="table-light text-muted sticky-top" style="z-index: 1;">
                                 <tr>
-                                    <th>ID</th>
+                                    <th>ID & Date</th>
                                     <th>Donor Info</th>
-                                    <th>Amount</th>
-                                    <th>Campaign</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>Campaign & Amount</th>
+                                    <th style="min-width: 250px;">Manage Status & Receipt</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for d in donations %}
                                 <tr>
-                                    <td class="fw-bold text-muted">#{{ d.id }}</td>
+                                    <td class="py-2">
+                                        <div class="fw-bold text-muted mb-1">{{ d.id }}</div>
+                                        <div class="small text-dark">{{ d.date }}</div>
+                                    </td>
                                     <td>
                                         <div class="fw-bold">{{ d.donor_name }}</div>
                                         <div class="text-muted small">{{ d.donor_email }}</div>
@@ -379,9 +463,11 @@
                                         <div class="text-muted small"><i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i> {{ d.donor_phone }}</div>
                                         {% endif %}
                                     </td>
-                                    <td class="text-success fw-bold">₹{{ d.amount }}</td>
-                                    <td><span class="badge bg-info text-dark">{{ d.purpose }}</span></td>
-                                    <td>{{ d.date }}</td>
+                                    <td class="py-2">
+                                        <div class="fw-bold text-success mb-1">₹{{ d.amount }}</div>
+                                        <span class="badge bg-info text-dark">{{ d.purpose }}</span>
+                                    </td>
+                                    
                                     <td style="min-width: 250px;">
                                         <form action="/update_status/{{ d.id }}" method="POST">
                                             <div class="mb-1 text-muted small fw-bold">{{ d.status }}</div>
@@ -392,7 +478,7 @@
                                                 </select>
                                                 <button type="submit" class="btn btn-sm btn-secondary">Save</button>
                                             </div>
-                                            <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center mb-2">
                                                 <input type="text" name="impact_details" class="form-control form-control-sm border-primary me-2" placeholder="Update impact...">
                                                 {% if d.impact_details %}
                                                     <small class="text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;" title="{{ d.impact_details }}">
@@ -401,10 +487,8 @@
                                                 {% endif %}
                                             </div>
                                         </form>
-                                    </td>
-                                    <td>
-                                        <a href="/receipt/{{ d.id }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Download 80G Receipt">
-                                            <i class="fa-solid fa-file-invoice me-1"></i>Receipt
+                                        <a href="/receipt/{{ d.id }}" target="_blank" class="btn btn-sm btn-outline-primary w-100" title="Download 80G Receipt">
+                                            <i class="fa-solid fa-file-invoice me-1"></i> View Receipt
                                         </a>
                                     </td>
                                 </tr>
@@ -419,38 +503,26 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-
-                <!-- Celebrations & Special Events Management Section -->
-                <div class="card shadow-sm mb-4 border-0">
-                    <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center py-2 px-3">
-                        <span style="font-size: 0.95rem;">
-                            <i class="fa-solid fa-cake-candles text-danger me-2"></i> Celebrations Master Log
-                        </span>
-                        <span class="badge bg-danger rounded-pill px-2 py-1" style="font-size: 0.75rem;">
-                            {{ celebrations|length }} Bookings
-                        </span>
-                    </div>
-                    <div class="card-body p-0 table-responsive custom-scroll" style="max-height: 480px; overflow-y: auto;">
-                        <table class="table table-hover table-striped align-middle mb-0" style="font-size: 0.85rem;">
+                        </div>
+                        <div class="tab-pane fade p-0 h-100" id="celebrations-log" role="tabpanel">
+                            <!-- Celebrations & Special Events Management Section -->
+                    <div class="table-responsive custom-scroll position-absolute w-100 h-100" style="top: 0; left: 0; overflow-y: auto;">
+                        <table class="table table-hover table-striped table-bordered align-middle mb-0" style="font-size: 0.85rem;">
                             <thead class="table-light text-muted sticky-top" style="z-index: 1;">
                                 <tr>
-                                    <th class="py-2">Pass ID</th>
-                                    <th class="py-2">Date & Slot</th>
+                                    <th class="py-2">Booking Info</th>
                                     <th class="py-2">Occasion & Celebrant</th>
                                     <th class="py-2">Sponsor Info</th>
-                                    <th class="py-2">Package & Mode</th>
-                                    <th class="py-2">Amount</th>
-                                    <th class="py-2">Status</th>
-                                    <th class="py-2">Action</th>
+                                    <th class="py-2">Package & Amount</th>
+                                    <th class="py-2">Manage</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for c in celebrations %}
                                 <tr>
-                                    <td class="fw-bold text-danger py-2">#JOY-{{ c.id }}</td>
                                     <td class="py-2">
-                                        <div class="fw-bold text-dark"><i class="fa-regular fa-calendar-check text-danger me-1"></i> {{ c.celebration_date }}</div>
+                                        <div class="fw-bold text-danger mb-1">JOY-{{ c.id }}</div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.8rem;"><i class="fa-regular fa-calendar-check text-danger me-1"></i> {{ c.celebration_date }}</div>
                                         <small class="text-muted" style="font-size: 0.75rem;">{{ c.time_slot.split('(')[0] }}</small>
                                     </td>
                                     <td class="py-2">
@@ -468,29 +540,27 @@
                                         {% endif %}
                                     </td>
                                     <td class="py-2">
-                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 140px; font-size: 0.8rem;" title="{{ c.package_type }}">{{ c.package_type.split('(')[0] }}</div>
+                                        <div class="fw-semibold text-dark text-wrap lh-sm mb-1" style="max-width: 140px; font-size: 0.8rem;">{{ c.package_type.split('(')[0] }}</div>
+                                        <div class="fw-bold text-success mb-1">₹{{ "{:,.0f}".format(c.amount) }}</div>
                                         <span class="badge bg-info-subtle text-info-emphasis" style="font-size: 0.7rem;">{{ c.attendance_mode }}</span>
                                     </td>
-                                    <td class="fw-bold text-success py-2">₹{{ "{:,.0f}".format(c.amount) }}</td>
                                     <td class="py-2">
                                         <form action="/update_celebration_status/{{ c.id }}" method="POST" class="d-flex align-items-center gap-1">
-                                            <select name="status" class="form-select form-select-sm py-0 px-2" style="width: auto; font-size: 0.78rem;">
+                                            <select name="status" class="form-select form-select-sm py-0 ps-2" style="width: auto; font-size: 0.78rem;">
                                                 <option value="Confirmed" {% if c.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
                                                 <option value="Completed" {% if c.status == 'Completed' %}selected{% endif %}>Completed</option>
                                                 <option value="Cancelled" {% if c.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
                                             </select>
                                             <button type="submit" class="btn btn-sm btn-secondary py-0 px-2" style="font-size: 0.78rem;" title="Save Status">Save</button>
                                         </form>
-                                    </td>
-                                    <td class="py-2">
-                                        <a href="/celebration/{{ c.id }}" target="_blank" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 0.78rem;" title="View Digital Celebration Pass">
-                                            <i class="fa-solid fa-ticket me-1"></i>Pass
+                                        <a href="/celebration/{{ c.id }}" target="_blank" class="btn btn-sm btn-outline-danger py-1 px-2 w-100 mt-2" style="font-size: 0.78rem;" title="View Digital Celebration Pass">
+                                            <i class="fa-solid fa-ticket me-1"></i>View Pass
                                         </a>
                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-muted">
+                                    <td colspan="5" class="text-center py-4 text-muted">
                                         <div class="fs-4 mb-1">🎂</div>
                                         No celebrations booked yet. Donors can book via the <a href="/celebrate" target="_blank" class="fw-bold text-danger">Celebrate Page</a>.
                                     </td>
@@ -499,10 +569,13 @@
                             </tbody>
                         </table>
                     </div>
+                        </div>
+                    </div>
                 </div>
-
             </div>
         </div>
+    </div>
+
     <!-- Initialize Chart.js -->
     <script>
         const ctx = document.getElementById('donationChart').getContext('2d');
@@ -934,7 +1007,7 @@
                             {% if completed_campaign_list %}
                             <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0">
+                                    <table class="table table-hover table-bordered align-middle mb-0">
                                         <thead class="table-light">
                                             <tr>
                                                  <th class="ps-4">Campaign Title & Purpose</th>
@@ -984,7 +1057,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
                             {% else %}
                             <div class="text-center py-5 bg-white rounded-4 border">
                                 <i class="fa-solid fa-box-archive text-muted fs-1 mb-3 opacity-50"></i>
@@ -1007,7 +1079,7 @@
                             {% if campaign_notifications %}
                             <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0">
+                                    <table class="table table-hover table-bordered align-middle mb-0">
                                         <thead class="table-light">
                                             <tr>
                                                 <th class="ps-4">Dispatched At</th>
@@ -1042,7 +1114,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
                             {% else %}
                             <div class="text-center py-5 bg-white rounded-4 border">
                                 <i class="fa-solid fa-bell-slash text-muted fs-1 mb-3 opacity-50"></i>

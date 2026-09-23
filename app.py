@@ -401,7 +401,7 @@ def admin_dashboard():
         JOIN users u ON d.donor_id = u.id
         GROUP BY u.id
         ORDER BY total_contributed DESC
-        LIMIT 3
+        LIMIT 8
     ''')
     top_donors = cursor.fetchall()
 
