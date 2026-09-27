@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, redirect, url_for, g, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from dotenv import load_dotenv
 import stripe
+from ai_assistant import generate_ai_response
 
 load_dotenv()
 
@@ -250,6 +251,18 @@ def init_db():
                 INSERT INTO campaign_participants (campaign_id, user_id, name, email, phone, role_note, joined_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', seed_participants)
+
+        # Create AI Conversation Logs table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ai_conversation_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                channel TEXT NOT NULL,
+                sender_id TEXT NOT NULL,
+                user_message TEXT,
+                bot_response TEXT,
+                created_at TEXT NOT NULL
+            )
+        ''')
 
         db.commit()
 
@@ -1502,6 +1515,136 @@ def update_celebration_status(celebration_id):
     cursor.execute('UPDATE celebrations SET status = ? WHERE id = ?', (new_status, celebration_id))
     db.commit()
     return redirect(url_for('admin_dashboard'))
+
+def log_ai_conversation(channel, sender_id, user_message, bot_response):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute('''
+            INSERT INTO ai_conversation_logs (channel, sender_id, user_message, bot_response, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (channel, str(sender_id), str(user_message), str(bot_response), now_str))
+        db.commit()
+    except Exception as e:
+        print(f"[AI Log Error]: {e}")
+
+@app.route('/api/whatsapp/webhook', methods=['GET', 'POST'])
+def whatsapp_webhook():
+    if request.method == 'GET':
+        return jsonify({'status': 'WhatsApp Webhook operational'}), 200
+
+    sender = request.values.get('From', 'WhatsApp User')
+    user_message = request.values.get('Body', '').strip()
+
+    if not user_message:
+        user_message = "Hello"
+
+    bot_response = generate_ai_response(user_message, channel='whatsapp')
+    log_ai_conversation('whatsapp', sender, user_message, bot_response)
+
+    # Return Twilio TwiML XML
+    twiml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Message>{bot_response}</Message>
+</Response>"""
+    return twiml_response, 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
+@app.route('/api/voice/webhook', methods=['GET', 'POST'])
+def voice_webhook():
+    greeting = ("Namaste! Welcome to Ray of Trust NGO. "
+                "I am Aasha, your AI assistant. "
+                "How can I help you with donations, shelter campaigns, or birthday celebrations today?")
+    
+    twiml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Gather input="speech" timeout="5" speechTimeout="auto" action="/api/voice/gather" method="POST">
+        <Say voice="Polly.Aditi">{greeting}</Say>
+    </Gather>
+    <Say voice="Polly.Aditi">We did not hear any response. Thank you for calling Ray of Trust NGO. Goodbye!</Say>
+</Response>"""
+    return twiml_response, 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
+@app.route('/api/voice/gather', methods=['POST'])
+def voice_gather():
+    speech_result = request.values.get('SpeechResult', '').strip()
+    caller = request.values.get('From', 'Caller')
+
+    if speech_result:
+        bot_response = generate_ai_response(speech_result, channel='voice')
+        log_ai_conversation('voice', caller, speech_result, bot_response)
+    else:
+        bot_response = "I couldn't quite capture that. Could you please repeat your question?"
+
+    twiml_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Gather input="speech" timeout="5" speechTimeout="auto" action="/api/voice/gather" method="POST">
+        <Say voice="Polly.Aditi">{bot_response}</Say>
+    </Gather>
+    <Say voice="Polly.Aditi">Thank you for contacting Ray of Trust NGO. Have a wonderful day!</Say>
+</Response>"""
+    return twiml_response, 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
+def detect_redirect_target(query):
+    q = query.lower()
+    # Explicitly block Admin Section access
+    if any(k in q for k in ['admin', 'administrator', 'admin panel', 'manage db', 'delete campaign', 'admin login']):
+        return 'RESTRICTED', 'Admin Access Restricted'
+        
+    if any(k in q for k in ['organize', 'start campaign', 'host drive', 'create campaign']):
+        return '/campaigns', 'Organize Campaign Hub'
+    elif any(k in q for k in ['campaign', 'drive', 'project', 'initiative', 'wakad', 'science kit', 'diwali smiles']):
+        return '/campaigns', 'Campaigns Hub'
+    elif any(k in q for k in ['donate', 'donation', 'payment', 'upi', 'stripe', 'money', '80g', 'tax', 'deduction']):
+        return '/donate', 'Donation & 80G Portal'
+    elif any(k in q for k in ['celebrate', 'birthday', 'kid', 'child', 'children', 'party', 'occasion', 'anniversary', 'cake']):
+        return '/celebrate', 'Shelter Celebration Page'
+    elif any(k in q for k in ['login', 'portal', 'receipt', 'history', 'account', 'my donation']):
+        return '/donor_login', 'Donor Portal'
+    elif any(k in q for k in ['home', 'about', 'overview', 'audit', 'impact', 'mission', 'ray of trust']):
+        return '/', 'Home Overview'
+    return None, None
+
+@app.route('/api/ai_chat', methods=['POST'])
+def api_ai_chat():
+    data = request.get_json(silent=True) or request.form
+    user_message = data.get('message', '').strip()
+    selected_language = data.get('language', 'English').strip()
+
+    if not user_message:
+        return jsonify({'success': False, 'error': 'Empty message'}), 400
+
+    sender_id = session.get('donor_id', 'Guest_Web_User')
+    redirect_url, section_name = detect_redirect_target(user_message)
+
+    if redirect_url == 'RESTRICTED':
+        bot_response = ("🔒 **Admin Section Restricted**\n\n"
+                        "The Admin Dashboard is strictly reserved for authorized NGO administrators. "
+                        "I can assist you with all public features: making a donation, downloading 80G tax receipts, "
+                        "exploring active campaigns, or sponsoring birthday celebrations for shelter kids!")
+        redirect_url = None
+    else:
+        bot_response = generate_ai_response(user_message, channel='web', language=selected_language)
+
+    log_ai_conversation('web', str(sender_id), user_message, bot_response)
+
+    return jsonify({
+        'success': True,
+        'response': bot_response,
+        'redirect_url': redirect_url,
+        'section_name': section_name
+    })
+
+@app.route('/admin/ai_logs')
+def admin_ai_logs():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+        
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM ai_conversation_logs ORDER BY id DESC LIMIT 100')
+    logs = cursor.fetchall()
+    return render_template('admin.html', ai_logs=logs, active_tab='ai_logs')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

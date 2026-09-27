@@ -1,0 +1,910 @@
+<!-- Ray of Trust NGO - Floating AI Assistant Widget -->
+<style>
+  .ai-fab-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9990;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    touch-action: none;
+    user-select: none;
+  }
+  .ai-teaser-bubble {
+    background: #ffffff;
+    color: #1e1b4b;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border-bottom-right-radius: 2px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    font-size: 12.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    border: 1px solid #e0e7ff;
+    cursor: pointer;
+  }
+  @keyframes bounceIn {
+    from { opacity: 0; transform: translateY(15px) scale(0.8); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .ai-fab-btn {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .ai-fab-btn:active {
+    cursor: grabbing;
+  }
+  .ai-fab-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.7);
+  }
+  .ai-pulse-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+  }
+  .ai-chat-card {
+    position: fixed;
+    bottom: 85px;
+    right: 24px;
+    z-index: 9995;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    height: 575px;
+    max-height: calc(100vh - 100px);
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+    touch-action: none;
+  }
+  .ai-chat-header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    color: white;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: grab;
+    user-select: none;
+  }
+  .ai-chat-header:active {
+    cursor: grabbing;
+  }
+  .ai-lang-select {
+    background: rgba(255,255,255,0.18);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+  }
+  .ai-lang-select option {
+    color: #1e1b4b;
+    background: #ffffff;
+  }
+
+  .ai-messages-area {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fdfdfd;
+  }
+  .ai-msg {
+    max-width: 88%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    position: relative;
+  }
+  .ai-msg-bot {
+    align-self: flex-start;
+    background: #f1f5f9;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+  }
+  .ai-msg-user {
+    align-self: flex-end;
+    background: #4f46e5;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+  }
+  .ai-chat-link {
+    color: #4f46e5;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .ai-chat-link:hover {
+    color: #3730a3;
+  }
+  .ai-chat-code {
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  .ai-suggested-prompts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .ai-prompt-btn {
+    background: #e2e8f0;
+    color: #334155;
+    border: none;
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    width: fit-content;
+  }
+  .ai-prompt-btn:hover { background: #cbd5e1; }
+
+  .ai-redirect-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transition: transform 0.2s;
+  }
+  .ai-redirect-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .ai-input-bar {
+    padding: 12px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 6px;
+    background: #ffffff;
+    align-items: center;
+  }
+  .ai-input-bar input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    outline: none;
+  }
+  .ai-input-bar input:focus { border-color: #4f46e5; }
+  .ai-icon-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: background 0.2s;
+  }
+  .ai-icon-btn:hover { background: #e2e8f0; }
+  .ai-send-btn {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<!-- Floating FAB & Teaser Container -->
+<div class="ai-fab-container" id="aiFabContainer">
+  <div class="ai-teaser-bubble" id="aiTeaserBubble" onclick="toggleAiWidget()">
+    <span>👋 Need help donating or calculating 80G tax benefits? <b>Ask Aasha!</b></span>
+    <span onclick="event.stopPropagation(); closeTeaser();" style="opacity:0.6; padding-left:4px;">&times;</span>
+  </div>
+
+  <button class="ai-fab-btn" id="aiFabBtn" title="Click to open, or drag anywhere on screen">
+    <span class="ai-pulse-dot"></span>
+    <span>AI Assistant</span>
+    <span>🤖</span>
+  </button>
+</div>
+
+<!-- AI Chat Card -->
+<div class="ai-chat-card" id="aiChatCard">
+  <!-- Header (Draggable Handle + Language Select + End Conversation) -->
+  <div class="ai-chat-header" id="aiChatHeader" title="Click and drag to move chat window">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        🤖
+      </div>
+      <div>
+        <div style="font-weight: 700; font-size: 14px;">Aasha - Ray of Trust AI</div>
+        <div style="font-size: 10.5px; opacity: 0.85;">✋ Drag anywhere • 24/7 NGO Guide</div>
+      </div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <!-- Language Selector Dropdown (English Main) -->
+      <select id="aiLangSelect" class="ai-lang-select" onchange="changeAiLanguage(this.value)" onclick="event.stopPropagation()" title="Choose Response Language">
+        <option value="English">🌐 English</option>
+        <option value="Hindi">🇮🇳 हिंदी (Hindi)</option>
+      </select>
+
+      <!-- End Conversation Button -->
+      <button onclick="endConversation()" class="ai-lang-select" style="background: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.5); display: flex; align-items: center; gap: 4px;" title="End Conversation and Clear Chat">
+        <span>🧹</span>
+        <span id="aiEndBtnText">End</span>
+      </button>
+
+      <button onclick="toggleAiWidget()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; opacity: 0.8;">&times;</button>
+    </div>
+  </div>
+
+  <!-- Messages Body -->
+  <div class="ai-messages-area" id="aiMessagesArea">
+    <div class="ai-msg ai-msg-bot" id="aiWelcomeMsg">
+      <span id="aiWelcomeTitle">🙏 <b>Namaste! I am Aasha</b>, your AI guide for Ray of Trust NGO.</span><br><br>
+      <span id="aiWelcomeSubtext">Ask me anything! Type your query below or tap a category to navigate:</span>
+      
+      <div class="ai-suggested-prompts" id="aiPromptsContainer">
+        <button class="ai-prompt-btn" onclick="sendSuggestedPrompt('Show active campaigns')">🌟 Active Campaigns</button>
+        <button class="ai-prompt-btn" onclick="sendSuggestedPrompt('How can I make a donation?')">💳 Donate Online</button>
+        <button class="ai-prompt-btn" onclick="sendSuggestedPrompt('How do I celebrate a birthday with shelter kids?')">🎂 Celebrate with Kids</button>
+        <button class="ai-prompt-btn" onclick="sendSuggestedPrompt('How do I get an 80G tax exemption receipt?')">📜 80G Tax Receipts</button>
+        <button class="ai-prompt-btn" onclick="sendSuggestedPrompt('Take me to the Donor Portal login')">👤 Donor Portal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="ai-input-bar">
+    <button class="ai-icon-btn" id="aiMicBtn" onclick="startVoiceInput()" title="Speak question aloud">🎙️</button>
+    <input type="text" id="aiUserInput" placeholder="Ask Aasha (e.g. show campaigns)..." onkeypress="handleAiKeyPress(event)" />
+    <button class="ai-send-btn" onclick="sendAiMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+  let currentLanguage = 'English';
+
+  const languageCodes = {
+    'English': 'en-US',
+    'Hindi': 'hi-IN'
+  };
+
+  const welcomeTranslations = {
+    'English': {
+      welcome: "🙏 <b>Namaste! I am Aasha</b>, your AI guide for Ray of Trust NGO.",
+      subtext: "Ask me anything! Type your query below or tap a category to navigate:",
+      placeholder: "Ask Aasha (e.g. show campaigns)...",
+      notice: "🌐 <b>Language updated to English.</b> All answers will now be provided in English!"
+    },
+    'Hindi': {
+      welcome: "🙏 <b>नमस्ते! मैं आशा (Aasha) हूँ</b> - रे ऑफ ट्रस्ट एनजीओ एआई सहायक।",
+      subtext: "मुझसे कुछ भी पूछें! अपना प्रश्न टाइप करें या किसी श्रेणी पर टैप करें:",
+      placeholder: "प्रश्न पूछें (जैसे: अभियान दिखाएं)...",
+      notice: "🌐 <b>भाषा बदलकर हिंदी की गई।</b> अब सभी उत्तर हिंदी में दिए जाएंगे!"
+    }
+  };
+
+  const promptTranslations = {
+    'English': [
+      { label: '🌟 Active Campaigns', prompt: 'Show active campaigns' },
+      { label: '💳 Donate Online', prompt: 'How can I make a donation?' },
+      { label: '🎂 Celebrate with Kids', prompt: 'How do I celebrate a birthday with shelter kids?' },
+      { label: '📜 80G Tax Receipts', prompt: 'How do I get an 80G tax exemption receipt?' },
+      { label: '👤 Donor Portal', prompt: 'Take me to the Donor Portal login' }
+    ],
+    'Hindi': [
+      { label: '🌟 सक्रिय अभियान (Campaigns)', prompt: 'सक्रिय अभियान दिखाएं' },
+      { label: '💳 ऑनलाइन दान करें (Donate)', prompt: 'ऑनलाइन दान कैसे करें?' },
+      { label: '🎂 बच्चों संग जन्मदिन मनाएं', prompt: 'बच्चों के साथ जन्मदिन कैसे मनाएं?' },
+      { label: '📜 80G कर छूट (80G Tax Exemption)', prompt: '80G कर छूट रसीद कैसे मिलेगी?' },
+      { label: '👤 डोनर पोर्टल (Donor Portal)', prompt: 'डोनर पोर्टल लॉगिन' }
+    ]
+  };
+
+  function updatePromptsUI(lang) {
+    const container = document.getElementById('aiPromptsContainer');
+    if (!container) return;
+    const prompts = promptTranslations[lang] || promptTranslations['English'];
+    container.innerHTML = '';
+    prompts.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'ai-prompt-btn';
+      btn.textContent = p.label;
+      btn.onclick = function() { sendSuggestedPrompt(p.prompt); };
+      container.appendChild(btn);
+    });
+  }
+
+  function changeAiLanguage(lang) {
+    stopSpeech();
+    currentLanguage = lang;
+    const t = welcomeTranslations[lang] || welcomeTranslations['English'];
+    
+    const input = document.getElementById('aiUserInput');
+    if (input) input.placeholder = t.placeholder;
+
+    const title = document.getElementById('aiWelcomeTitle');
+    if (title) title.innerHTML = t.welcome;
+
+    const sub = document.getElementById('aiWelcomeSubtext');
+    if (sub) sub.textContent = t.subtext;
+
+    const endBtnText = document.getElementById('aiEndBtnText');
+    if (endBtnText) endBtnText.textContent = lang === 'Hindi' ? 'समाप्त' : 'End';
+
+    updatePromptsUI(lang);
+    
+    const area = document.getElementById('aiMessagesArea');
+    const langNotice = document.createElement('div');
+    langNotice.className = 'ai-msg ai-msg-bot';
+    langNotice.innerHTML = t.notice;
+    area.appendChild(langNotice);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  function endConversation() {
+    stopSpeech();
+    
+    const area = document.getElementById('aiMessagesArea');
+    if (!area) return;
+
+    const t = welcomeTranslations[currentLanguage] || welcomeTranslations['English'];
+
+    // Clear chat history and restore initial welcome card
+    area.innerHTML = `
+      <div class="ai-msg ai-msg-bot" id="aiWelcomeMsg">
+        <span id="aiWelcomeTitle">${t.welcome}</span><br><br>
+        <span id="aiWelcomeSubtext">${t.subtext}</span>
+        
+        <div class="ai-suggested-prompts" id="aiPromptsContainer"></div>
+      </div>
+    `;
+
+    updatePromptsUI(currentLanguage);
+
+    // Append localized conversation reset notice
+    const endNotice = document.createElement('div');
+    endNotice.className = 'ai-msg ai-msg-bot';
+    endNotice.innerHTML = currentLanguage === 'Hindi' 
+      ? `🧹 <b>बातचीत समाप्त की गई।</b> नया प्रश्न टाइप करें या किसी श्रेणी पर टैप करें!`
+      : `🧹 <b>Conversation ended.</b> Type a new question below or tap a category to start fresh!`;
+    area.appendChild(endNotice);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  function closeTeaser() {
+    const b = document.getElementById('aiTeaserBubble');
+    if (b) b.style.display = 'none';
+  }
+
+  function toggleAiWidget() {
+    closeTeaser();
+    const card = document.getElementById('aiChatCard');
+    if (card.style.display === 'none' || !card.style.display) {
+      card.style.display = 'flex';
+      sessionStorage.setItem('ai_widget_open', 'true');
+      document.getElementById('aiUserInput').focus();
+    } else {
+      card.style.display = 'none';
+      sessionStorage.setItem('ai_widget_open', 'false');
+      stopSpeech();
+    }
+  }
+
+  function navigateToSection(url) {
+    sessionStorage.setItem('ai_widget_open', 'true');
+    window.location.href = url;
+  }
+
+  // Restore open state on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('ai_widget_open') === 'true') {
+      const card = document.getElementById('aiChatCard');
+      if (card) {
+        card.style.display = 'flex';
+        closeTeaser();
+      }
+    }
+  });
+
+  // --- DRAG & DROP IMPLEMENTATION FOR FAB & CHAT CARD ---
+  (function initDraggableWidget() {
+    const fabContainer = document.getElementById('aiFabContainer');
+    const fabBtn = document.getElementById('aiFabBtn');
+    const chatCard = document.getElementById('aiChatCard');
+    const chatHeader = document.getElementById('aiChatHeader');
+
+    let isDraggingFab = false;
+    let isDraggingCard = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+    let hasMovedFab = false;
+
+    // 1. Drag FAB Container
+    function onFabStart(e) {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      isDraggingFab = true;
+      hasMovedFab = false;
+      startX = clientX;
+      startY = clientY;
+
+      const rect = fabContainer.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+
+      document.addEventListener('mousemove', onFabMove);
+      document.addEventListener('touchmove', onFabMove, { passive: false });
+      document.addEventListener('mouseup', onFabEnd);
+      document.addEventListener('touchend', onFabEnd);
+    }
+
+    function onFabMove(e) {
+      if (!isDraggingFab) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
+
+      if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+        hasMovedFab = true;
+      }
+
+      if (hasMovedFab) {
+        if (e.cancelable) e.preventDefault();
+        let newLeft = initialLeft + deltaX;
+        let newTop = initialTop + deltaY;
+
+        newLeft = Math.max(10, Math.min(window.innerWidth - fabContainer.offsetWidth - 10, newLeft));
+        newTop = Math.max(10, Math.min(window.innerHeight - fabContainer.offsetHeight - 10, newTop));
+
+        fabContainer.style.left = newLeft + 'px';
+        fabContainer.style.top = newTop + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+      }
+    }
+
+    function onFabEnd() {
+      if (!isDraggingFab) return;
+      isDraggingFab = false;
+      document.removeEventListener('mousemove', onFabMove);
+      document.removeEventListener('touchmove', onFabMove);
+      document.removeEventListener('mouseup', onFabEnd);
+      document.removeEventListener('touchend', onFabEnd);
+
+      if (!hasMovedFab) {
+        toggleAiWidget();
+      }
+    }
+
+    if (fabBtn) {
+      fabBtn.addEventListener('mousedown', onFabStart);
+      fabBtn.addEventListener('touchstart', onFabStart, { passive: false });
+    }
+
+    // 2. Drag Chat Card Header
+    function onCardStart(e) {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      isDraggingCard = true;
+      startX = clientX;
+      startY = clientY;
+
+      const rect = chatCard.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+
+      document.addEventListener('mousemove', onCardMove);
+      document.addEventListener('touchmove', onCardMove, { passive: false });
+      document.addEventListener('mouseup', onCardEnd);
+      document.addEventListener('touchend', onCardEnd);
+    }
+
+    function onCardMove(e) {
+      if (!isDraggingCard) return;
+      if (e.cancelable) e.preventDefault();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - startX;
+      const deltaY = clientY - startY;
+
+      let newLeft = initialLeft + deltaX;
+      let newTop = initialTop + deltaY;
+
+      newLeft = Math.max(10, Math.min(window.innerWidth - chatCard.offsetWidth - 10, newLeft));
+      newTop = Math.max(10, Math.min(window.innerHeight - chatCard.offsetHeight - 10, newTop));
+
+      chatCard.style.left = newLeft + 'px';
+      chatCard.style.top = newTop + 'px';
+      chatCard.style.right = 'auto';
+      chatCard.style.bottom = 'auto';
+    }
+
+    function onCardEnd() {
+      isDraggingCard = false;
+      document.removeEventListener('mousemove', onCardMove);
+      document.removeEventListener('touchmove', onCardMove);
+      document.removeEventListener('mouseup', onCardEnd);
+      document.removeEventListener('touchend', onCardEnd);
+    }
+
+    if (chatHeader) {
+      chatHeader.addEventListener('mousedown', onCardStart);
+      chatHeader.addEventListener('touchstart', onCardStart, { passive: false });
+    }
+  })();
+
+  function sendSuggestedPrompt(text) {
+    document.getElementById('aiUserInput').value = text;
+    sendAiMessage();
+  }
+
+  function handleAiKeyPress(e) {
+    if (e.key === 'Enter') {
+      sendAiMessage();
+    }
+  }
+
+  function startVoiceInput() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert("Voice input is supported on Chrome, Safari, and Edge browsers.");
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = languageCodes[currentLanguage] || 'en-US';
+    const micBtn = document.getElementById('aiMicBtn');
+    micBtn.style.background = '#ef4444';
+    micBtn.style.color = '#ffffff';
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      document.getElementById('aiUserInput').value = transcript;
+      micBtn.style.background = '#f1f5f9';
+      micBtn.style.color = '#475569';
+      sendAiMessage();
+    };
+
+    recognition.onerror = function() {
+      micBtn.style.background = '#f1f5f9';
+      micBtn.style.color = '#475569';
+    };
+
+    recognition.start();
+  }
+
+  function renderMarkdown(text) {
+    if (!text) return '';
+    let html = text;
+
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="ai-chat-link">$1</a>');
+    html = html.replace(/`([^`]+)`/g, '<code class="ai-chat-code">$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+    html = html.replace(/\*([^*]+)\*/g, '<b>$1</b>');
+
+    const lines = html.split('\n');
+    const formatted = lines.map(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
+        return `<div style="margin-left: 12px; margin-top: 4px;">• ${trimmed.substring(2)}</div>`;
+      }
+      return line;
+    });
+
+    return formatted.join('<br>');
+  }
+
+  // --- AUDIO TEXT-TO-SPEECH WITH PLAY/STOP TOGGLE, LAKHS SANITIZATION & NATIVE VOICE ---
+  let isStopped = false;
+  let currentSpeakingBtn = null;
+  let speechQueue = [];
+  let isSpeaking = false;
+
+  function stopSpeech() {
+    isStopped = true;
+    speechQueue = [];
+    isSpeaking = false;
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    
+    if (currentSpeakingBtn) {
+      const label = currentLanguage === 'Hindi' ? 'सुनें' : 'Listen';
+      currentSpeakingBtn.innerHTML = `🔊 ${label} (${currentLanguage})`;
+      currentSpeakingBtn.style.background = '#e2e8f0';
+      currentSpeakingBtn.style.color = '#334155';
+      currentSpeakingBtn = null;
+    }
+  }
+
+  function speakFromBtn(btn) {
+    const rawText = btn.getAttribute('data-speech') || '';
+
+    // If clicking the button currently playing audio, STOP speech immediately!
+    if (currentSpeakingBtn === btn && isSpeaking) {
+      stopSpeech();
+      return;
+    }
+
+    // Stop any previous speech first
+    stopSpeech();
+
+    currentSpeakingBtn = btn;
+    const stopLabel = currentLanguage === 'Hindi' ? 'रोकें' : 'Stop';
+    btn.innerHTML = `⏹️ ${stopLabel} (${currentLanguage})`;
+    btn.style.background = '#ef4444';
+    btn.style.color = '#ffffff';
+
+    speakText(rawText, function onDone() {
+      stopSpeech();
+    });
+  }
+
+  function getBestVoice(langCode) {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    // 1. Direct language code match (e.g., 'hi-IN' or 'hi_IN')
+    let voice = voices.find(v => v.lang === langCode || v.lang === langCode.replace('-', '_'));
+    if (voice) return voice;
+
+    // 2. Prefix match for Hindi/English
+    const prefix = langCode.split('-')[0].toLowerCase();
+    voice = voices.find(v => v.lang.toLowerCase().startsWith(prefix) || v.name.toLowerCase().includes('hindi') || v.name.toLowerCase().includes('hi'));
+    if (voice) return voice;
+
+    return null;
+  }
+
+  function formatNumbersForSpeech(text, lang) {
+    const isHindi = lang === 'Hindi';
+    let formatted = text;
+
+    // 1. Convert '1,00,000' or '₹1,00,000' -> '1 Lakh Rupees' (English) / '1 लाख रुपये' (Hindi)
+    formatted = formatted.replace(/₹?\s*1[,.]?00[,.]?000\b/gi, isHindi ? '1 लाख रुपये' : '1 Lakh Rupees');
+    formatted = formatted.replace(/₹?\s*(\d+)[,.]?00[,.]?000\b/gi, (match, p1) => isHindi ? `${p1} लाख रुपये` : `${p1} Lakh Rupees`);
+
+    // 2. Format specific campaign amounts:
+    // ₹75,000 -> 75 Thousand Rupees / 75 हजार रुपये
+    formatted = formatted.replace(/₹?\s*75[,.]?000\b/gi, isHindi ? '75 हजार रुपये' : '75 Thousand Rupees');
+    formatted = formatted.replace(/₹?\s*54[,.]?200\b/gi, isHindi ? '54 हजार 2 सौ रुपये' : '54 Thousand 2 Hundred Rupees');
+    formatted = formatted.replace(/₹?\s*50[,.]?000\b/gi, isHindi ? '50 हजार रुपये' : '50 Thousand Rupees');
+    formatted = formatted.replace(/₹?\s*39[,.]?500\b/gi, isHindi ? '39 हजार 5 सौ रुपये' : '39 Thousand 5 Hundred Rupees');
+    formatted = formatted.replace(/₹?\s*15[,.]?000\b/gi, isHindi ? '15 हजार रुपये' : '15 Thousand Rupees');
+
+    // 3. Convert any 'X Lakh' or 'X Lakhs' written in text -> 'X Lakh' (or 'X लाख')
+    formatted = formatted.replace(/(\d+)\s*Lakhs?\b/gi, isHindi ? '$1 लाख' : '$1 Lakh');
+
+    // 4. Format any remaining ₹ currency: ₹500 -> 500 Rupees / 500 रुपये
+    const currencyWord = isHindi ? ' रुपये ' : ' Rupees ';
+    formatted = formatted.replace(/₹\s*([\d,.]+)/g, '$1 ' + currencyWord);
+
+    return formatted;
+  }
+
+  function speakText(text, onCompleteCallback) {
+    if (!('speechSynthesis' in window)) {
+      alert("Text-to-speech is not supported on this browser.");
+      if (onCompleteCallback) onCompleteCallback();
+      return;
+    }
+
+    isStopped = false;
+    window.speechSynthesis.cancel();
+    speechQueue = [];
+    isSpeaking = false;
+
+    if (!text) {
+      if (onCompleteCallback) onCompleteCallback();
+      return;
+    }
+
+    // Clean text: remove HTML, markdown links, symbols, emojis, and replace dots in list numbers
+    let cleanText = text
+      .replace(/<[^>]*>/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[*#_`~]/g, '')
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+      .replace(/[•\-\–\—]/g, '')
+      .replace(/\|/g, ', ')
+      .replace(/।/g, '. ')
+      .replace(/(\b\d+)\./g, '$1:')
+      .trim();
+
+    // Format Indian numbers like 1,00,000 -> 1 Lakh Rupees for smooth English/Hindi speech readout!
+    cleanText = formatNumbersForSpeech(cleanText, currentLanguage);
+
+    if (!cleanText) {
+      if (onCompleteCallback) onCompleteCallback();
+      return;
+    }
+
+    const rawSentences = cleanText.split(/(?<=[!?\n\.])\s*/);
+    
+    speechQueue = rawSentences
+      .map(s => s.replace(/[:]/g, ' ').trim())
+      .filter(s => s.length > 0);
+
+    if (speechQueue.length === 0) {
+      if (onCompleteCallback) onCompleteCallback();
+      return;
+    }
+
+    function playNextSentence() {
+      if (isStopped || speechQueue.length === 0) {
+        isSpeaking = false;
+        if (onCompleteCallback) onCompleteCallback();
+        return;
+      }
+      isSpeaking = true;
+      const sentenceText = speechQueue.shift();
+      const utterance = new SpeechSynthesisUtterance(sentenceText);
+      
+      const targetLang = languageCodes[currentLanguage] || 'en-US';
+      const bestVoice = getBestVoice(targetLang);
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+      }
+      utterance.lang = targetLang;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+
+      utterance.onend = function() {
+        if (!isStopped) playNextSentence();
+      };
+
+      utterance.onerror = function(err) {
+        if (!isStopped) playNextSentence();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    playNextSentence();
+  }
+
+  async function sendAiMessage() {
+    const input = document.getElementById('aiUserInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const area = document.getElementById('aiMessagesArea');
+
+    // Append User Message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'ai-msg ai-msg-user';
+    userMsg.textContent = text;
+    area.appendChild(userMsg);
+
+    input.value = '';
+    area.scrollTop = area.scrollHeight;
+
+    // Append Loading Indicator
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'ai-msg ai-msg-bot';
+    loadingMsg.innerHTML = '<i>Aasha is thinking...</i> 💭';
+    area.appendChild(loadingMsg);
+    area.scrollTop = area.scrollHeight;
+
+    try {
+      const res = await fetch('/api/ai_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, language: currentLanguage })
+      });
+      const data = await res.json();
+      area.removeChild(loadingMsg);
+
+      const botMsg = document.createElement('div');
+      botMsg.className = 'ai-msg ai-msg-bot';
+      
+      if (data.success) {
+        let contentHtml = renderMarkdown(data.response);
+        botMsg.innerHTML = contentHtml;
+
+        // Container for action buttons
+        const actionBox = document.createElement('div');
+        actionBox.style.marginTop = '6px';
+        actionBox.style.display = 'flex';
+        actionBox.style.flexDirection = 'column';
+        actionBox.style.gap = '6px';
+
+        // 1. Audio Readout Button (Supports Play/Stop Toggle)
+        const speechBtn = document.createElement('button');
+        speechBtn.className = 'ai-prompt-btn';
+        speechBtn.style.padding = '4px 10px';
+        speechBtn.style.fontSize = '11px';
+        const label = currentLanguage === 'Hindi' ? 'सुनें' : 'Listen';
+        speechBtn.textContent = `🔊 ${label} (${currentLanguage})`;
+        speechBtn.setAttribute('data-speech', data.response);
+        speechBtn.onclick = function() { speakFromBtn(this); };
+        actionBox.appendChild(speechBtn);
+
+        // 2. Section navigation button (if redirect URL is recommended)
+        if (data.redirect_url) {
+          const redirectBtn = document.createElement('button');
+          redirectBtn.className = 'ai-redirect-btn';
+          redirectBtn.textContent = `🚀 Go to ${data.section_name}`;
+          redirectBtn.onclick = function() { navigateToSection(data.redirect_url); };
+          actionBox.appendChild(redirectBtn);
+        }
+
+        botMsg.appendChild(actionBox);
+        area.appendChild(botMsg);
+      } else {
+        botMsg.textContent = "Sorry, I ran into an issue processing that. Please try again!";
+        area.appendChild(botMsg);
+      }
+    } catch (err) {
+      if (loadingMsg.parentNode === area) {
+        area.removeChild(loadingMsg);
+      }
+      const botMsg = document.createElement('div');
+      botMsg.className = 'ai-msg ai-msg-bot';
+      botMsg.textContent = "Network connection issue. Please check your connection.";
+      area.appendChild(botMsg);
+    }
+    area.scrollTop = area.scrollHeight;
+  }
+</script>
